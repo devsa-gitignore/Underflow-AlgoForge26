@@ -4,6 +4,7 @@ import {
   Activity, Clock, Shield, Search, Bell, Settings, 
   LogOut, ChevronRight, UserCheck, MapPin, MoreVertical, CheckCircle2, RefreshCw
 } from 'lucide-react';
+import IndiaHeatmap from './components/IndiaHeatmap';
 
 // Reusing our Magic Bento component for that premium SaaS glow
 function MagicBento({ children, className = "", glowColor = "16, 185, 129" }) {
@@ -347,10 +348,10 @@ export default function AdminDashboard() {
                   </div>
                   
                   {/* GEOGRAPHIC MAP & TREND GRAPH */}
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-10">
                     
                     {/* Geographic Map Placeholder */}
-                    <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col relative min-h-[340px]">
+                    <div className="lg:col-span-3 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col relative min-h-[340px]">
                       <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50 relative z-10">
                         <h3 className="font-bold text-slate-800 flex items-center gap-2">
                           <Map size={18} className="text-blue-600" /> Live Geographic Heatmap
@@ -360,25 +361,13 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                       
-                      <div className="flex-1 bg-slate-100 relative overflow-hidden flex items-center justify-center">
-                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at center, #0f172a 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                        <div className="absolute top-10 left-16 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl mix-blend-multiply"></div>
-                        <div className="absolute bottom-6 right-24 w-64 h-64 bg-red-500/10 rounded-full blur-3xl mix-blend-multiply animate-pulse"></div>
-                        
-                        <div className="relative z-10 flex flex-col items-center">
-                          <div className="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center mb-3 text-blue-600 animate-bounce">
-                            <MapPin size={32} />
-                          </div>
-                          <h4 className="font-bold text-slate-800 text-lg">Interactive Map View</h4>
-                          <p className="text-sm text-slate-500 font-medium max-w-xs text-center mt-1">
-                            GIS mapping of active cases across Ward 4 and Ward 5.
-                          </p>
-                        </div>
+                      <div className="flex-1 w-full relative z-0">
+                        <IndiaHeatmap />
                       </div>
                     </div>
 
                     {/* Case Trend Line Graph */}
-                    <div className="lg:col-span-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
+                    <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
                       <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
                         <h3 className="font-bold text-slate-800 flex items-center gap-2">
                           <TrendingUp size={18} className="text-blue-600"/> 7-Day Case Trend
@@ -397,7 +386,7 @@ export default function AdminDashboard() {
                         </div>
                         
                         {/* Pure SVG Line Chart */}
-                        <div className="flex-1 w-full relative mt-auto h-32">
+                        <div className="w-full relative mt-auto h-40">
                           <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                             <defs>
                               <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">

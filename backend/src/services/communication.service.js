@@ -171,12 +171,21 @@ export const handleMissedCall = async (fromPhone, baseUrl) => {
   const cleanPhone = fromPhone.replace(/^\+91/, '').replace(/^\+/, '');
   const patient = await Patient.findOne({ phone: { $regex: cleanPhone } });
 
-  // 4. Trigger the Automated IVR Start flow Instead of just a hardcoded Say
+  if (!patient) {
+    console.warn(`[IVR] Caller ${fromPhone} is not found in Database. Aborting callback.`);
+    return {
+      success: false,
+      patientIdentified: false,
+      message: 'Unregistered patient, skipped IVR call'
+    };
+  }
+
+  // 4. Trigger the Automated IVR Start flow
   const result = await startIVRCall(fromPhone, null, baseUrl);
   console.log("📞 Callback triggered:", result.sid || result);
   return {
     success: true,
-    patientIdentified: !!patient,
+    patientIdentified: true,
     callbackResult: result,
   };
 };

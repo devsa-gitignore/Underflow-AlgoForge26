@@ -31,8 +31,8 @@ export const bulkRegister = asyncHandler(async (req, res) => {
 // @route   GET /patients/search
 // @access  Private
 export const searchPatients = asyncHandler(async (req, res) => {
-  const { q, village } = req.query;
-  const patients = await patientService.searchPatients(q, village);
+  const { q, village, region } = req.query;
+  const patients = await patientService.searchPatients(q, village, region);
   res.status(200).json(patients);
 });
 
@@ -58,4 +58,16 @@ export const updatePatient = asyncHandler(async (req, res) => {
 export const deletePatient = asyncHandler(async (req, res) => {
   const result = await patientService.softDeletePatient(req.params.id);
   res.status(200).json(result);
+});
+
+// @desc    Generate QR code for a patient
+// @route   POST /patients/:id/qr
+// @access  Private
+export const generateQR = asyncHandler(async (req, res) => {
+  const patient = await patientService.generatePatientQR(req.params.id);
+  res.status(200).json({
+    success: true,
+    qrCode: patient.qrCode,
+    message: 'QR code generated and saved successfully',
+  });
 });

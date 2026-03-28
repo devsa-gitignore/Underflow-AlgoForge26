@@ -1,0 +1,256 @@
+import React, { useState } from 'react';
+import { 
+  Menu, Bell, CloudOff, Cloud, Plus, 
+  Search, LayoutDashboard, Users, Baby, RefreshCw, 
+  Settings, LogOut, ChevronRight, AlertCircle, Activity, CheckCircle2 
+} from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import MagicBento from './MagicBento';
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const [isOffline, setIsOffline] = useState(false);
+
+  // Mock Triage Data
+  const patients = [
+    { id: 1, name: "Aarti Sharma", age: 28, risk: "red", issue: "Severe Anemia - BP 160/100", time: "Overdue", village: "Ward 4" },
+    { id: 2, name: "Pooja Patel", age: 24, risk: "yellow", issue: "Missed ANC Checkup", time: "Today", village: "Ward 4" },
+    { id: 3, name: "Sunita Devi", age: 34, risk: "green", issue: "Routine Visit - On Track", time: "Today", village: "Ward 5" },
+    { id: 4, name: "Rahul Kumar", age: 2, risk: "green", issue: "Vaccination Completed", time: "Done", village: "Ward 2" },
+    { id: 5, name: "Meena Kumari", age: 22, risk: "yellow", issue: "Low Weight Gain", time: "Tomorrow", village: "Ward 5" },
+  ];
+
+  const getCardStyles = (risk) => {
+    switch (risk) {
+      case 'red':
+        return 'bg-red-50 border-l-[3px] border-red-500 shadow-sm relative overflow-hidden group';
+      case 'yellow':
+        return 'bg-yellow-50/50 border-l-[3px] border-yellow-400 group';
+      case 'green':
+        return 'bg-white border border-slate-200 group';
+      default:
+        return 'bg-white border border-slate-200 group';
+    }
+  };
+
+  const getBadgeStyles = (risk) => {
+    switch (risk) {
+      case 'red': return 'bg-red-100 text-red-700';
+      case 'yellow': return 'bg-yellow-100 text-yellow-700';
+      case 'green': return 'bg-teal-50 text-teal-700';
+      default: return 'bg-slate-100 text-slate-700';
+    }
+  };
+
+  return (
+    <div className="p-6 lg:p-10 font-inter">
+      <div className="max-w-7xl mx-auto space-y-8">
+            
+            <div className="flex justify-between items-end">
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900 mb-1">Overview</h2>
+                <p className="text-sm text-slate-500">Your prioritized operational tasks for today.</p>
+              </div>
+              <Link to="/add-patient" className="sm:hidden flex items-center justify-center w-10 h-10 bg-teal-600 text-white rounded-full shadow-md">
+                <Plus size={20} />
+              </Link>
+            </div>
+
+            {/* Realistic Clinical Alert Banner */}
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle size={20} className="text-red-500 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-red-800 text-sm flex items-center gap-2">
+                    Action Required: Clinical Alert
+                  </h3>
+                  <p className="text-red-700/90 text-sm mt-1 max-w-2xl">
+                    <span className="font-semibold">Aarti Sharma</span>'s latest vitals show elevated BP (160/100). Referral to Primary Health Center (PHC) is highly advised based on protocol.
+                  </p>
+                </div>
+              </div>
+              <button className="hidden sm:block px-4 py-2 bg-white border border-red-200 text-red-700 text-sm font-medium rounded-lg hover:bg-red-50 transition-colors">
+                View Protocol
+              </button>
+            </div>
+
+            {/* Stats Grid using Magic Bento Effect */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <MagicBento glowColor="14, 165, 233" className="bg-white p-5 cursor-default">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-sm font-medium text-slate-500">Pending Visits</span>
+                  <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
+                    <Activity size={16} className="text-sky-500" />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-slate-900">12</span>
+                  <span className="text-sm text-slate-500">families</span>
+                </div>
+              </MagicBento>
+
+              <MagicBento glowColor="239, 68, 68" className="bg-white p-5 cursor-default">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-sm font-medium text-slate-500">High Risk</span>
+                  <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                    <AlertCircle size={16} className="text-red-500" />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-slate-900">2</span>
+                  <span className="text-sm text-slate-500">attention required</span>
+                </div>
+              </MagicBento>
+
+              <MagicBento glowColor="168, 85, 247" className="bg-white p-5 cursor-default">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-sm font-medium text-slate-500">Maternal Tracks</span>
+                  <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                    <Baby size={16} className="text-purple-500" />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-slate-900">8</span>
+                  <span className="text-sm text-slate-500">active</span>
+                </div>
+              </MagicBento>
+
+              <MagicBento glowColor="20, 184, 166" className="bg-white p-5 cursor-default">
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-sm font-medium text-slate-500">Weekly Goal</span>
+                  <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
+                    <CheckCircle2 size={16} className="text-teal-500" />
+                  </div>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-slate-900">85%</span>
+                  <span className="text-sm text-slate-500">completed</span>
+                </div>
+              </MagicBento>
+
+            </div>
+
+            {/* TWO COLUMN LAYOUT: Triage Stack + Action Pane */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* Left Column: Triage Stack */}
+              <div className="lg:col-span-2">
+                <div className="flex items-center justify-between mb-4 mt-2">
+                  <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                    Priority Queue
+                  </h2>
+                  <button className="text-sm font-medium text-teal-600 hover:text-teal-700">See all</button>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {patients.map((patient) => (
+                    <div 
+                      key={patient.id}
+                      onClick={() => navigate(`/patient/${patient.id}`)}
+                      className={`p-4 rounded-xl transition-all cursor-pointer ${getCardStyles(patient.risk)}`}
+                    >
+                      {patient.risk === 'red' && <div className="absolute top-0 right-0 w-8 h-8 bg-red-50 flex items-center justify-center rounded-bl-xl"><AlertCircle size={14} className="text-red-500" /></div>}
+                      
+                      <div className="flex justify-between items-start">
+                        <div className="flex gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm hidden sm:flex shrink-0 ${
+                            patient.risk === 'red' ? 'bg-red-100 text-red-700' : 
+                            patient.risk === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 
+                            'bg-slate-100 text-slate-600'
+                          }`}>
+                            {patient.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-slate-900 text-sm">
+                                {patient.name}
+                              </h3>
+                              <span className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wider ${getBadgeStyles(patient.risk)}`}>
+                                {patient.risk === 'red' ? 'Urgent' : patient.risk === 'yellow' ? 'Monitor' : 'Routine'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mb-2">
+                              Age {patient.age} &bull; {patient.village} &bull; {patient.time}
+                            </p>
+                            
+                            <div className="text-sm text-slate-700 flex items-center gap-2">
+                              {patient.issue}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="hidden sm:flex self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ChevronRight size={18} className="text-slate-400" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: Quick Utilities */}
+              <div className="lg:col-span-1 space-y-4">
+                
+                <div className="flex items-center justify-between mb-4 mt-2">
+                  <h2 className="text-base font-semibold text-slate-900">
+                    Actions
+                  </h2>
+                </div>
+
+                <MagicBento glowColor="203, 213, 225" className="bg-white p-1">
+                  <Link to="/add-patient" className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center shadow-sm border border-teal-100/50">
+                        <Plus size={16} className="text-teal-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700">Register New Patient</span>
+                    </div>
+                  </Link>
+                  <div className="h-px w-full bg-slate-100" />
+                  <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center shadow-sm border border-purple-100/50">
+                        <Baby size={16} className="text-purple-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700">Log Maternal Checkup</span>
+                    </div>
+                  </button>
+                  <div className="h-px w-full bg-slate-100" />
+                  <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent">
+                    <div className="flex items-center gap-3">
+                       <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center shadow-sm border border-blue-100/50">
+                        <Users size={16} className="text-blue-600" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700">Find Previous Record</span>
+                    </div>
+                  </button>
+                </MagicBento>
+
+                {/* Upcoming Schedule */}
+                <h2 className="text-base font-semibold text-slate-900 mt-6 mb-3">
+                    Schedule
+                </h2>
+                <div className="bg-white border border-slate-200 rounded-xl p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="flex flex-col items-center justify-center bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 min-w-[3rem]">
+                        <span className="text-[10px] font-semibold text-slate-500 uppercase">Oct</span>
+                        <span className="text-lg font-bold text-slate-800">14</span>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-0.5">Polio Vaccination</h4>
+                        <p className="text-xs text-slate-500 mb-2">Ward 4 Primary School &bull; 08:00 AM</p>
+                        <a href="#" className="text-xs font-medium text-teal-600 hover:text-teal-700">View Participant List (45)</a>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+    </div>
+  </div>
+);
+}

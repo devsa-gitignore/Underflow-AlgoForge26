@@ -1,9 +1,8 @@
+import * as twilioIntegration from '../integrations/twilio.js';
 import * as ttsIntegration from '../integrations/tts.js';
 import Patient from '../models/Patient.js';
 
 const isMock = process.env.COMM_MODE === 'mock' || !process.env.COMM_MODE;
-
-const getTwilioIntegration = async () => import('../integrations/twilio.js');
 
 export const sendSMS = async (phone, message) => {
   if (isMock) {
@@ -11,7 +10,6 @@ export const sendSMS = async (phone, message) => {
     return { success: true, mode: 'mock', messageId: 'MOCK_SMS_123' };
   }
 
-  const twilioIntegration = await getTwilioIntegration();
   return twilioIntegration.sendSMS(phone, message);
 };
 

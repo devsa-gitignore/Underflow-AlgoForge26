@@ -103,5 +103,3 @@ export const handleSMSWebhook = (req, res) => {
       .catch(err => console.error(`❌ SMS Callback failed for ${fromPhone}:`, err.message));
   }
 };
-
-

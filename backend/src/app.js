@@ -23,6 +23,8 @@ app.use('/auth', authRoutes);
 app.use('/patients', patientRoutes);
 app.use('/ai', aiRoutes);
 app.use('/alerts', alertRoutes);
+app.use('/qr', qrRoutes);
+app.use('/comm', communicationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

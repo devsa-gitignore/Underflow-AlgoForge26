@@ -8,6 +8,7 @@ import qrRoutes from './routes/qr.routes.js';
 import communicationRoutes from './routes/communication.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import errorMiddleware from './middlewares/error.middleware.js';
+import alertRoutes from './routes/alert.routes.js';
 
 dotenv.config();
 

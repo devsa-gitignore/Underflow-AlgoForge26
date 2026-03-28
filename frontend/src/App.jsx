@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import PatientDirectory from './PatientDirectory';
 import AddPatient from './AddPatient';
 import PatientProfile from './PatientProfile';
+import AdminDashboard from './AdminDashboard';
 import Layout from './Layout';
 import { LanguageProvider } from './LanguageProvider';
 import './App.css';
@@ -23,6 +24,12 @@ function App() {
             <Route path="/add-patient" element={<AddPatient />} />
             <Route path="/patient/:id" element={<PatientProfile />} />
           </Route>
+          
+          {/* Standalone Route for Admin */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          
+          {/* Redirect unknown routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

@@ -206,7 +206,26 @@ export default function Dashboard() {
     const rank = { red: 0, yellow: 1, green: 2 };
     return rank[a.risk] - rank[b.risk];
   });
-  const priorityPatients = sortedPatients.slice(0, 6);
+  
+  // Balance out priority queue so not everyone is red
+  const reds = sortedPatients.filter((p) => p.risk === 'red').slice(0, 2);
+  const yellows = sortedPatients.filter((p) => p.risk === 'yellow').slice(0, 2);
+  const greens = sortedPatients.filter((p) => p.risk === 'green').slice(0, 2);
+  let balancedPriority = [...reds, ...yellows, ...greens];
+  
+  if (balancedPriority.length < 6) {
+    const assignedIds = new Set(balancedPriority.map((p) => p.id));
+    const remaining = sortedPatients.filter((p) => !assignedIds.has(p.id));
+    balancedPriority = [...balancedPriority, ...remaining.slice(0, 6 - balancedPriority.length)];
+  }
+  
+  // Sort balanced list back by risk
+  balancedPriority.sort((a, b) => {
+    const rank = { red: 0, yellow: 1, green: 2 };
+    return rank[a.risk] - rank[b.risk];
+  });
+
+  const priorityPatients = balancedPriority;
   const highRiskCount = patients.filter((patient) => patient.risk === 'red').length;
   const maternalCount = patients.filter((patient) => patient.isPregnant).length;
   const weeklyCompletion = patients.length ? Math.min(100, Math.round(((patients.length - highRiskCount) / patients.length) * 100)) : 0;

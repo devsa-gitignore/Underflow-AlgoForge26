@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "workers": [
+    {
+      "_id": "69c7d5a063d0df4e71cd7a02",
+      "name": "Jash Nikombhe",
+      "phone": "9876543210",
+      "role": "ASHA",
+      "region": "Palghar",
+      "isVerified": true,
+      "createdAt": "2026-03-28T13:20:32.882Z",
+      "updatedAt": "2026-03-28T13:20:32.882Z",
+      "__v": 0
+    }
+  ]
+}

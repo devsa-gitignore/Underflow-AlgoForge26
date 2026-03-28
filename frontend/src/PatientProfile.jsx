@@ -82,7 +82,8 @@ export default function PatientProfile() {
     ward: '...',
     category: 'General',
     riskStatus: 'green',
-    registrationDate: '...'
+    registrationDate: '...',
+    pendingTask: 'Routine Checkup'
   });
 
   useEffect(() => {
@@ -108,8 +109,9 @@ export default function PatientProfile() {
             ward: p.village,
             category: p.isPregnant ? 'Maternal' : 'General',
             riskStatus: p.currentRiskLevel.toLowerCase() === 'critical' || p.currentRiskLevel.toLowerCase() === 'high' ? 'red' :
-              p.currentRiskLevel.toLowerCase() === 'medium' ? 'yellow' : 'green',
-            registrationDate: new Date(p.createdAt).toLocaleDateString()
+                p.currentRiskLevel.toLowerCase() === 'medium' ? 'yellow' : 'green',
+            registrationDate: new Date(p.createdAt).toLocaleDateString(),
+            pendingTask: p.pendingTask || 'Routine Checkup'
           });
         }
       } catch {
@@ -236,7 +238,7 @@ export default function PatientProfile() {
                     {patient.riskStatus === 'red' ? text.criticalRisk : patient.riskStatus === 'yellow' ? text.elevatedRisk : text.normal}
                   </span>
                 </div>
-                <p className="text-slate-500 font-medium text-sm mb-2">{text.registered} {patient.registrationDate}</p>
+                <p className="text-slate-500 font-medium text-sm mb-2">{text.registered} {patient.registrationDate} &bull; <span className="ml-1 text-teal-600 font-bold">{language === 'hi' ? 'अगला कार्य' : 'Next Task'}: {patient.pendingTask}</span></p>
                 
                 <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-sm font-medium text-slate-600">
                   <span className="flex items-center gap-1.5"><User size={16} className="text-slate-400"/> {patient.age} {text.years}, {patient.gender}</span>

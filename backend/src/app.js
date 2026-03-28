@@ -7,8 +7,9 @@ import voiceRoutes from './routes/voice.routes.js';
 import qrRoutes from './routes/qr.routes.js';
 import communicationRoutes from './routes/communication.routes.js';
 import aiRoutes from './routes/ai.routes.js';
-import errorMiddleware from './middlewares/error.middleware.js';
 import alertRoutes from './routes/alert.routes.js';
+import syncRoutes from './routes/sync.routes.js';
+import errorMiddleware from './middlewares/error.middleware.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/auth', authRoutes);
 app.use('/patients', patientRoutes);
 app.use('/ai', aiRoutes);
 app.use('/alerts', alertRoutes);
+app.use('/sync', syncRoutes);
 app.use('/qr', qrRoutes);
 app.use('/comm', communicationRoutes);
 app.use('/voice', voiceRoutes);

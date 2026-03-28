@@ -149,6 +149,7 @@ export default function Dashboard() {
     reader.readAsDataURL(file);
   };
 
+<<<<<<< HEAD
   // Mock Triage Data
   const patients = [
     { id: 1, name: "Aarti Sharma", age: 28, risk: "red", issue: "Severe Anemia - BP 160/100", time: "Overdue", village: "Ward 4" },
@@ -157,6 +158,36 @@ export default function Dashboard() {
     { id: 4, name: "Rahul Kumar", age: 2, risk: "green", issue: "Vaccination Completed", time: "Done", village: "Ward 2" },
     { id: 5, name: "Meena Kumari", age: 22, risk: "yellow", issue: "Low Weight Gain", time: "Tomorrow", village: "Ward 5" },
   ];
+=======
+  const sortedPatients = [...patients].sort((a, b) => {
+    const rank = { red: 0, yellow: 1, green: 2 };
+    return rank[a.risk] - rank[b.risk];
+  });
+  
+  // Balance out priority queue so not everyone is red
+  const reds = sortedPatients.filter((p) => p.risk === 'red').slice(0, 2);
+  const yellows = sortedPatients.filter((p) => p.risk === 'yellow').slice(0, 2);
+  const greens = sortedPatients.filter((p) => p.risk === 'green').slice(0, 2);
+  let balancedPriority = [...reds, ...yellows, ...greens];
+  
+  if (balancedPriority.length < 6) {
+    const assignedIds = new Set(balancedPriority.map((p) => p.id));
+    const remaining = sortedPatients.filter((p) => !assignedIds.has(p.id));
+    balancedPriority = [...balancedPriority, ...remaining.slice(0, 6 - balancedPriority.length)];
+  }
+  
+  // Sort balanced list back by risk
+  balancedPriority.sort((a, b) => {
+    const rank = { red: 0, yellow: 1, green: 2 };
+    return rank[a.risk] - rank[b.risk];
+  });
+
+  const priorityPatients = balancedPriority;
+  const highRiskCount = patients.filter((patient) => patient.risk === 'red').length;
+  const maternalCount = patients.filter((patient) => patient.isPregnant).length;
+  const weeklyCompletion = patients.length ? Math.min(100, Math.round(((patients.length - highRiskCount) / patients.length) * 100)) : 0;
+  const featuredPatient = priorityPatients[0];
+>>>>>>> 4ce5547d56033e2d4e8d88a460f37a70532b3d80
 
   const getCardStyles = (risk) => {
     switch (risk) {

@@ -3,6 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import patientRoutes from './routes/patient.routes.js';
+import voiceRoutes from './routes/voice.routes.js';
+import qrRoutes from './routes/qr.routes.js';
+import communicationRoutes from './routes/communication.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import errorMiddleware from './middlewares/error.middleware.js';
 
@@ -11,6 +14,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Routes

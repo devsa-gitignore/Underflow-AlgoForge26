@@ -20,6 +20,7 @@ import {
 import { useLanguage } from './language-context';
 import { translatePersonName, translateWardLabel } from './text-utils';
 import { getStoredToken } from './auth-utils';
+import PregnancyTimeline from './components/PregnancyTimeline';
 
 export default function PatientProfile() {
   const navigate = useNavigate();
@@ -264,6 +265,11 @@ export default function PatientProfile() {
 
           </div>
         </div>
+
+        {/* CONDITIONAL PREGNANCY TIMELINE */}
+        {patient.category === 'Maternal' && (
+          <PregnancyTimeline patient={patient} />
+        )}
 
         {/* VISIT HISTORY SECTION */}
         <div>

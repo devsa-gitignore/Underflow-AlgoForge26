@@ -4,6 +4,7 @@ import {
   Activity, Clock, Shield, Search, Bell, Settings, 
   LogOut, ChevronRight, UserCheck, MapPin, MoreVertical, CheckCircle2, RefreshCw
 } from 'lucide-react';
+import { getStoredToken } from './auth-utils';
 
 // Reusing our Magic Bento component for that premium SaaS glow
 function MagicBento({ children, className = "", glowColor = "16, 185, 129" }) {
@@ -83,13 +84,22 @@ export default function AdminDashboard() {
   const runEpidemicAlert = async () => {
     setIsAiLoading(true);
     try {
+      const token = await getStoredToken();
       const simulatedData = "Past 7 days across Wards 1-5: 45 cases of sudden high fever, 12 isolated cases of severe diarrhea in Ward 4, infant malnutrition reported in Ward 2.";
       const res = await fetch('http://localhost:5000/ai/epidemic-alerts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` })
+        },
         body: JSON.stringify({ aggregatedDataText: simulatedData })
       });
       const data = await res.json();
+      if (!res.ok) {
+         console.error("API failed:", data);
+         setAiAlerts({ alertLevel: "ERROR", findings: data.message || "Failed to fetch AI Insights. Check backend token or Gemini API.", recommendations: "Ensure you are logged in correctly and Gemini config is set."});
+         return;
+      }
       setAiAlerts(data.data);
     } catch(err) {
       console.error(err);

@@ -1,0 +1,40 @@
+{
+  "count": 3,
+  "workers": [
+    {
+      "_id": "69c79cbd775154792263fbf3",
+      "name": "Test ASHA Worker",
+      "phoneNumber": "9876543210",
+      "role": "asha",
+      "village": "Development Village",
+      "isVerified": true,
+      "createdAt": "2026-03-28T09:17:49.244Z",
+      "updatedAt": "2026-03-28T13:33:48.560Z",
+      "__v": 0,
+      "otp": "962992",
+      "otpExpires": "2026-03-28T13:43:48.550Z"
+    },
+    {
+      "_id": "69c7a756d743e94bab223322",
+      "name": "Test ASHA Worker",
+      "phoneNumber": "9123456789",
+      "role": "asha",
+      "village": "Development Village",
+      "isVerified": true,
+      "createdAt": "2026-03-28T10:03:02.327Z",
+      "updatedAt": "2026-03-28T10:24:10.085Z",
+      "__v": 0
+    },
+    {
+      "_id": "69c7d5a063d0df4e71cd7a02",
+      "name": "Jash Nikombhe",
+      "phone": "9876543210",
+      "role": "ASHA",
+      "region": "Palghar",
+      "isVerified": true,
+      "createdAt": "2026-03-28T13:20:32.882Z",
+      "updatedAt": "2026-03-28T13:20:32.882Z",
+      "__v": 0
+    }
+  ]
+}

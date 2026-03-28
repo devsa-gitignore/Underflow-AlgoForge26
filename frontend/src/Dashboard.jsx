@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import jsQR from 'jsqr';
 import MagicBento from './MagicBento';
 import { useLanguage } from './language-context';
+import AdminSeverityMap from './components/AdminSeverityMap';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -269,6 +270,9 @@ export default function Dashboard() {
               </MagicBento>
 
             </div>
+
+            {/* Region Severity Heatmap */}
+            <AdminSeverityMap />
 
             {/* TWO COLUMN LAYOUT: Triage Stack + Action Pane */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

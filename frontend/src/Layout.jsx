@@ -86,9 +86,7 @@ export default function Layout() {
             </div>
             <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-400' : 'bg-teal-400'}`} />
           </button>
-          <a href="#" className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white rounded-md text-sm font-medium transition-colors">
-            <Settings size={18} /> {text.preferences}
-          </a>
+
         </nav>
 
         <div className="p-4 border-t border-slate-800">

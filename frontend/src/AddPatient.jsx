@@ -4,6 +4,7 @@ import {
   ChevronRight, ChevronLeft, Baby, HeartPulse, 
   Stethoscope, ShieldCheck, QrCode, Mic, MicOff, Languages
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './language-context';
 import { getStoredToken } from './auth-utils';
@@ -264,13 +265,18 @@ export default function AddPatient() {
   );
 
   return (
-    <div className="p-6 lg:p-10 font-inter">
-      <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative min-h-[600px] flex flex-col">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-2xl mx-auto bg-white/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 overflow-hidden relative min-h-[600px] flex flex-col"
+      >
           
         {/* Header */}
-        <div className="bg-slate-900 p-6 text-white shrink-0">
-          <h2 className="text-xl font-semibold tracking-tight">{text.header}</h2>
-          <p className="text-sm text-slate-400 mt-1">{text.subheader}</p>
+        <div className="bg-slate-900/95 backdrop-blur-md p-6 text-white shrink-0 shadow-sm border-b border-slate-800/50">
+          <h2 className="text-xl font-bold tracking-tight">{text.header}</h2>
+          <p className="text-sm text-slate-300 mt-1 font-medium">{text.subheader}</p>
         </div>
 
         {!isComplete ? (
@@ -385,7 +391,7 @@ export default function AddPatient() {
                   {/* Visual Category Card */}
                   <button 
                     onClick={() => handleCategorySelect('maternal')}
-                    className={`p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden group ${formData.category === 'maternal' ? 'border-teal-500 bg-teal-50 ring-4 ring-teal-500/10' : 'border-slate-200 hover:border-teal-300 hover:bg-slate-50'}`}
+                    className={`p-4 rounded-2xl border flex flex-col items-center text-center transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] active:scale-[0.98] ${formData.category === 'maternal' ? 'border-teal-500 bg-teal-50/80 shadow-[0_4px_20px_rgba(20,184,166,0.15)] ring-2 ring-teal-500/20' : 'border-slate-200/60 bg-white/50 hover:border-teal-300 hover:bg-white hover:shadow-md'}`}
                   >
                     <Baby size={28} className={`mb-3 ${formData.category === 'maternal' ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-500'}`} />
                     <h4 className={`font-bold text-lg mb-1 ${formData.category === 'maternal' ? 'text-teal-900' : 'text-slate-800'}`}>{text.maternalCare}</h4>
@@ -509,21 +515,21 @@ export default function AddPatient() {
             )}
 
             {/* Navigation Footer */}
-            <div className="pt-8 mt-4 border-t border-slate-100 flex justify-between items-center shrink-0">
-              <button 
+            <div className="pt-8 mt-4 border-t border-slate-200/50 flex justify-between items-center shrink-0">
+               <button 
                 onClick={handleBack}
                 disabled={step === 1}
-                className={`px-5 py-2.5 rounded-lg font-semibold text-sm flex items-center gap-2 transition-colors ${
-                  step === 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'
+                className={`px-5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all active:scale-[0.98] ${
+                  step === 1 ? 'text-slate-300 cursor-not-allowed opacity-50' : 'text-slate-600 bg-white/50 border border-slate-200 hover:bg-white hover:shadow-sm'
                 }`}
               >
                 <ChevronLeft size={18} /> {text.back}
-              </button>
+               </button>
 
               {step < 4 ? (
                 <button 
                   onClick={handleNext}
-                  className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-semibold text-sm flex items-center gap-2 hover:bg-slate-800 transition-all shadow-sm"
+                  className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm flex items-center gap-2 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98] hover:shadow-lg"
                 >
                   {text.continue} <ChevronRight size={18} />
                 </button>
@@ -531,7 +537,7 @@ export default function AddPatient() {
                 <button 
                   onClick={handleSubmit}
                   disabled={!qrCodeUrl || isSubmitting}
-                  className="px-6 py-2.5 bg-teal-600 text-white rounded-lg font-semibold text-sm flex items-center gap-2 hover:bg-teal-700 transition-all shadow-md shadow-teal-200 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-500 transition-all shadow-[0_4px_20px_rgba(20,184,166,0.3)] hover:shadow-[0_8px_30px_rgba(20,184,166,0.4)] active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -590,7 +596,7 @@ export default function AddPatient() {
           </div>
         )}
 
-      </div>
+      </motion.div>
     </div>
   );
 }

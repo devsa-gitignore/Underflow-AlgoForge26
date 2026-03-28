@@ -69,7 +69,7 @@ export default function PregnancyTimeline({ patient }) {
         </span>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 sm:p-8 min-h-[200px] relative">
+      <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden p-6 sm:p-8 min-h-[200px] relative">
         <p className="text-slate-500 font-medium mb-6 text-sm">
           A personalized clinical foresight model generated for this patient by Gemini 2.5 Flash.
         </p>
@@ -84,8 +84,11 @@ export default function PregnancyTimeline({ patient }) {
             <AlertTriangle/> {error}
           </div>
         ) : (
-          <div className="relative border-l-2 border-slate-100 pl-6 ml-4 space-y-8">
-            {timelineData.map((month) => {
+          <motion.div 
+            initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
+            className="relative border-l-2 border-slate-200/60 pl-6 ml-4 space-y-8"
+          >
+            {timelineData.map((month, idx) => {
               const isExpanded = expandedMonth === month.monthNumber;
               const isLocked = !month.isCurrent && month.monthNumber > 1 && !timelineData.find(m => m.isCurrent && m.monthNumber >= month.monthNumber); // simplified lock logic
               
@@ -95,28 +98,31 @@ export default function PregnancyTimeline({ patient }) {
               let iconComponent = null;
 
               if (month.isCurrent) {
-                pulseBorder = "border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)] ring-2 ring-emerald-50";
-                iconBg = "bg-emerald-500 text-white animate-pulse shadow-lg shadow-emerald-200";
+                pulseBorder = "bg-white border-emerald-300 shadow-[0_4px_24px_rgba(52,211,153,0.15)] ring-4 ring-emerald-500/10";
+                iconBg = "bg-emerald-500 text-white animate-pulse shadow-xl shadow-emerald-500/40";
                 iconComponent = <Activity size={16} />;
               } else if (isLocked) {
-                pulseBorder = "border-slate-200 bg-slate-50/50 opacity-70";
+                pulseBorder = "border-slate-200/50 bg-slate-50/20 opacity-60 backdrop-blur-sm";
                 iconBg = "bg-slate-200 text-slate-400";
                 iconComponent = <Lock size={16} />;
               } else {
-                pulseBorder = "border-slate-200 hover:border-slate-300 shadow-sm hover:shadow";
-                iconBg = "bg-blue-500 text-white shadow-md shadow-blue-200";
+                pulseBorder = "bg-white/40 border-slate-200/60 hover:bg-white hover:border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99]";
+                iconBg = "bg-blue-500 text-white shadow-lg shadow-blue-500/30";
                 iconComponent = <CheckCircle size={16} />;
               }
 
               return (
-                <div key={month.monthNumber} className="relative">
+                <motion.div 
+                  variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+                  key={month.monthNumber} className="relative"
+                >
                   <div className={`absolute -left-[37px] top-4 w-7 h-7 rounded-full flex items-center justify-center z-10 ${iconBg}`}>
                     {iconComponent}
                   </div>
 
                   <div 
                     onClick={() => toggleMonth(month.monthNumber, isLocked)}
-                    className={`relative p-5 rounded-xl border transition-all duration-300 ${pulseBorder} ${!isLocked ? 'cursor-pointer hover:bg-slate-50/30' : 'cursor-not-allowed'}`}
+                    className={`relative p-5 rounded-2xl border transition-all duration-300 backdrop-blur-md ${pulseBorder} ${!isLocked ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                   >
                     <div className="flex justify-between items-center">
                       <div className="flex flex-col">
@@ -144,8 +150,8 @@ export default function PregnancyTimeline({ patient }) {
                           transition={{ duration: 0.3, ease: "easeInOut" }}
                           className="overflow-hidden"
                         >
-                          <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col gap-4">
-                            <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                          <div className="mt-6 pt-5 border-t border-slate-200/50 flex flex-col gap-4">
+                            <div className="bg-white/60 backdrop-blur-sm shadow-inner rounded-xl p-5 border border-white/80">
                               <div className="space-y-4">
                                 <div className="flex items-start gap-3">
                                   <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />
@@ -176,10 +182,10 @@ export default function PregnancyTimeline({ patient }) {
                     </AnimatePresence>
 
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

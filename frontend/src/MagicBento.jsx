@@ -4,7 +4,7 @@ import gsap from 'gsap';
 export default function MagicBento({
   children,
   className = "",
-  glowColor = "16, 185, 129", // Default Emerald Glow
+  glowColor = "14, 165, 233", // Default Sky Blue Glow for light mode
   enableSpotlight = true,
   enableBorderGlow = true,
 }) {
@@ -21,10 +21,11 @@ export default function MagicBento({
     const updateGradients = () => {
       const { x, y } = target;
       if (enableSpotlight && spotlightRef.current) {
-        spotlightRef.current.style.background = `radial-gradient(420px circle at ${x}px ${y}px, rgba(${glowColor}, 0.14), transparent 42%)`;
+        // Stronger spotlight for light mode, slightly larger
+        spotlightRef.current.style.background = `radial-gradient(500px circle at ${x}px ${y}px, rgba(${glowColor}, 0.15), transparent 45%)`;
       }
       if (enableBorderGlow && borderGlowRef.current) {
-        borderGlowRef.current.style.background = `radial-gradient(280px circle at ${x}px ${y}px, rgba(${glowColor}, 0.7), transparent 42%)`;
+        borderGlowRef.current.style.background = `radial-gradient(300px circle at ${x}px ${y}px, rgba(${glowColor}, 0.8), transparent 50%)`;
       }
     };
 
@@ -63,15 +64,16 @@ export default function MagicBento({
     };
   }, [enableSpotlight, enableBorderGlow, glowColor]);
 
+  // Enhanced Light Mode glass styling on the container
   return (
     <div
       ref={containerRef}
-      className={`group relative isolate overflow-hidden rounded-xl border border-slate-200 transition-shadow hover:shadow-md ${className}`}
+      className={`group relative isolate overflow-hidden rounded-2xl border border-white/60 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] ${className}`}
     >
       {enableSpotlight && (
         <div
           ref={spotlightRef}
-          className="pointer-events-none absolute inset-0 opacity-0 z-0"
+          className="pointer-events-none absolute inset-0 opacity-0 z-0 mix-blend-multiply"
         />
       )}
       {enableBorderGlow && (
@@ -87,6 +89,8 @@ export default function MagicBento({
           }}
         />
       )}
+      {/* Soft inner glow highlight */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/50 z-10" />
       <div className="relative z-10 h-full">{children}</div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Activity,
   AlertTriangle,
@@ -21,6 +22,7 @@ import { useLanguage } from './language-context';
 import { translatePersonName, translateWardLabel } from './text-utils';
 import { getStoredToken } from './auth-utils';
 import PregnancyTimeline from './components/PregnancyTimeline';
+import MagicBento from './MagicBento';
 
 export default function PatientProfile() {
   const navigate = useNavigate();
@@ -193,27 +195,32 @@ export default function PatientProfile() {
   };
 
   return (
-    <div className="p-6 lg:p-10 font-inter">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, staggerChildren: 0.1 }}
+        className="max-w-4xl mx-auto space-y-6"
+      >
 
         {/* Top Navigation Bar */}
         <header className="mb-6 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 -ml-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 -ml-2 text-slate-500 hover:text-slate-900 hover:bg-white/50 backdrop-blur-md rounded-xl transition-all shadow-sm border border-transparent hover:border-slate-200"
             >
               <ArrowLeft size={20} />
             </button>
-            <h1 className="text-xl font-bold text-slate-800">{text.patientRecord}</h1>
+            <h1 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-700 to-slate-600">{text.patientRecord}</h1>
           </div>
-          <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors shadow-sm hidden sm:block">
+          <button className="bg-white/80 backdrop-blur-md text-slate-700 border border-slate-200/60 px-4 py-2 rounded-xl text-sm font-bold hover:bg-white hover:shadow-sm active:scale-[0.98] transition-all hidden sm:block">
             {text.editDetails}
           </button>
         </header>
 
         {/* PATIENT IDENTITY CARD */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
 
           <div className="p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:items-center justify-between">
 
@@ -253,14 +260,14 @@ export default function PatientProfile() {
               {patient.category === 'Maternal' && (
                 <button 
                   onClick={() => navigate(`/patient/${patient.id}/timeline`)}
-                  className="w-full md:w-auto px-6 py-3.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors shadow-sm"
+                  className="w-full md:w-auto px-6 py-3.5 bg-emerald-50/50 backdrop-blur-md text-emerald-700 border border-emerald-200/60 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-emerald-50 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <Activity size={20} />
                   {language === 'hi' ? 'एआई टाइमलाइन देखें' : 'View AI Timeline'}
                 </button>
               )}
-              <button className="w-full md:w-auto px-6 py-3.5 bg-teal-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-teal-700 transition-colors shadow-md shadow-teal-200 group">
-                <Plus size={20} className="group-hover:scale-110 transition-transform" />
+              <button className="w-full md:w-auto px-6 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 hover:shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:scale-[1.02] active:scale-[0.98] transition-all group">
+                <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                 {text.logVisit}
               </button>
             </div>
@@ -276,10 +283,10 @@ export default function PatientProfile() {
         {/* VISIT HISTORY SECTION */}
         <div>
           <div className="flex items-center justify-between mb-4 mt-8 px-1">
-            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
               <Calendar size={20} className="text-slate-400" /> {text.clinicalHistory}
             </h3>
-            <span className="text-sm font-semibold text-slate-500 bg-slate-200 px-3 py-1 rounded-full">{visits.length} {text.records}</span>
+            <span className="text-xs font-bold text-slate-500 bg-white/60 border border-white/80 shadow-sm backdrop-blur-sm px-3 py-1 rounded-full">{visits.length} {text.records}</span>
           </div>
 
           <div className="space-y-4">
@@ -287,7 +294,7 @@ export default function PatientProfile() {
               const isExpanded = expandedVisitId === visit.id;
 
               return (
-                <div key={visit.id} className={`bg-white rounded-xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-slate-300 shadow-md' : 'border-slate-200 shadow-sm hover:border-slate-300'}`}>
+                <div key={visit.id} className={`bg-white/60 backdrop-blur-xl rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-teal-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)]' : 'border-white/80 shadow-sm hover:border-slate-200'}`}>
 
                   {/* ACCORDION HEADER (Clickable) */}
                   <div
@@ -313,23 +320,23 @@ export default function PatientProfile() {
                       {/* Grid for Vitals */}
                       <div className="mb-6">
                         <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5"><Activity size={14}/> {text.recordedVitals}</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          <div className="bg-white border border-slate-200 p-3 rounded-lg">
-                            <p className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1"><HeartPulse size={12}/> {text.bloodPressure}</p>
-                            <p className={`font-bold text-lg ${visit.vitals.bp === '160/100' ? 'text-red-600' : 'text-slate-800'}`}>{visit.vitals.bp}</p>
-                          </div>
-                          <div className="bg-white border border-slate-200 p-3 rounded-lg">
-                            <p className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1"><Thermometer size={12}/> {text.temperature}</p>
-                            <p className="font-bold text-lg text-slate-800">{visit.vitals.temp}</p>
-                          </div>
-                          <div className="bg-white border border-slate-200 p-3 rounded-lg">
-                            <p className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1"><Weight size={12}/> {text.weight}</p>
-                            <p className="font-bold text-lg text-slate-800">{visit.vitals.weight}</p>
-                          </div>
-                          <div className="bg-white border border-slate-200 p-3 rounded-lg">
-                            <p className="text-xs text-slate-500 font-medium mb-1 flex items-center gap-1"><Activity size={12}/> {text.pulse}</p>
-                            <p className="font-bold text-lg text-slate-800">{visit.vitals.pulse}</p>
-                          </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          <MagicBento glowColor="239, 68, 68" className="p-4 bg-white/40">
+                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5"><HeartPulse size={14} className="text-red-400"/> {text.bloodPressure}</p>
+                            <p className={`font-black text-2xl ${visit.vitals.bp === '160/100' ? 'text-red-600' : 'text-slate-800'}`}>{visit.vitals.bp}</p>
+                          </MagicBento>
+                          <MagicBento glowColor="245, 158, 11" className="p-4 bg-white/40">
+                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5"><Thermometer size={14} className="text-amber-400"/> {text.temperature}</p>
+                            <p className="font-black text-2xl text-slate-800">{visit.vitals.temp}</p>
+                          </MagicBento>
+                          <MagicBento glowColor="59, 130, 246" className="p-4 bg-white/40">
+                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5"><Weight size={14} className="text-blue-400"/> {text.weight}</p>
+                            <p className="font-black text-2xl text-slate-800">{visit.vitals.weight}</p>
+                          </MagicBento>
+                          <MagicBento glowColor="20, 184, 166" className="p-4 bg-white/40">
+                            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5"><Activity size={14} className="text-teal-400"/> {text.pulse}</p>
+                            <p className="font-black text-2xl text-slate-800">{visit.vitals.pulse}</p>
+                          </MagicBento>
                         </div>
                       </div>
 
@@ -375,7 +382,7 @@ export default function PatientProfile() {
           </div>
 
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   MoreVertical,
   RefreshCw,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useLanguage } from './language-context';
@@ -185,11 +186,16 @@ export default function PatientDirectory() {
   });
 
   return (
-    <div className="p-6 lg:p-10 font-inter">
-      <div className="max-w-5xl mx-auto">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", staggerChildren: 0.1 }}
+        className="max-w-5xl mx-auto"
+      >
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-1">{text.title}</h2>
+            <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-700 to-slate-600 mb-1">{text.title}</h2>
             <p className="text-sm text-slate-500 font-medium">{text.subtitle}</p>
           </div>
           <div className="text-sm font-semibold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-md shadow-sm">
@@ -197,7 +203,7 @@ export default function PatientDirectory() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-t-xl border border-slate-200 border-b-0 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="bg-white/80 backdrop-blur-xl p-4 rounded-t-2xl border border-white/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row gap-4 justify-between items-center z-10 relative">
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-2.5 text-slate-400" size={18} />
             <input
@@ -205,80 +211,81 @@ export default function PatientDirectory() {
               placeholder={text.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              className="w-full pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-[0_2px_10px_rgba(0,0,0,0.01)] transition-all"
             />
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-            <div className="flex items-center gap-2 pr-4 border-r border-slate-200">
+            <div className="flex items-center gap-2 pr-4 border-r border-slate-200/50">
               <Filter size={16} className="text-slate-400" />
               <span className="text-xs font-semibold text-slate-500 uppercase">{text.filters}</span>
             </div>
 
             <button
               onClick={() => setActiveFilter('all')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${activeFilter === 'all' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap active:scale-[0.98] ${activeFilter === 'all' ? 'bg-slate-900 text-white shadow-md shadow-slate-900/20' : 'bg-transparent text-slate-600 hover:bg-white hover:shadow-sm'}`}
             >
               {text.all}
             </button>
             <button
               onClick={() => setActiveFilter('red')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap ${activeFilter === 'red' ? 'bg-red-600 text-white shadow-sm shadow-red-200' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all whitespace-nowrap active:scale-[0.98] ${activeFilter === 'red' ? 'bg-red-500 text-white shadow-md shadow-red-500/25' : 'bg-transparent text-slate-600 hover:bg-white hover:text-red-600 hover:shadow-sm'}`}
             >
-              <AlertTriangle size={14} className={activeFilter === 'red' ? 'text-white' : 'text-red-500'} />
+              <AlertTriangle size={14} className={activeFilter === 'red' ? 'text-white' : 'text-slate-400'} />
               {text.critical}
             </button>
             <button
               onClick={() => setActiveFilter('maternal')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap ${activeFilter === 'maternal' ? 'bg-blue-600 text-white shadow-sm shadow-blue-200' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all whitespace-nowrap active:scale-[0.98] ${activeFilter === 'maternal' ? 'bg-blue-500 text-white shadow-md shadow-blue-500/25' : 'bg-transparent text-slate-600 hover:bg-white hover:text-blue-600 hover:shadow-sm'}`}
             >
-              <Baby size={14} className={activeFilter === 'maternal' ? 'text-white' : 'text-blue-500'} />
+              <Baby size={14} className={activeFilter === 'maternal' ? 'text-white' : 'text-slate-400'} />
               {text.maternal}
             </button>
             <button
               onClick={() => setActiveFilter('vaccine')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap ${activeFilter === 'vaccine' ? 'bg-purple-600 text-white shadow-sm shadow-purple-200' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all whitespace-nowrap active:scale-[0.98] ${activeFilter === 'vaccine' ? 'bg-purple-500 text-white shadow-md shadow-purple-500/25' : 'bg-transparent text-slate-600 hover:bg-white hover:text-purple-600 hover:shadow-sm'}`}
             >
-              <Syringe size={14} className={activeFilter === 'vaccine' ? 'text-white' : 'text-purple-500'} />
+              <Syringe size={14} className={activeFilter === 'vaccine' ? 'text-white' : 'text-slate-400'} />
               {text.vaccinations}
             </button>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-b-xl shadow-sm overflow-hidden">
-          <div className="grid grid-cols-12 gap-4 p-4 border-b border-slate-200 bg-slate-50/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <div className="bg-white/60 backdrop-blur-2xl border border-white/80 rounded-b-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+          <div className="grid grid-cols-12 gap-4 p-5 border-b border-slate-200/50 bg-slate-50/30 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
             <div className="col-span-4 pl-2">{text.patientProfile}</div>
             <div className="col-span-3">{text.clinicalTag}</div>
             <div className="col-span-4">{text.statusNextStep}</div>
             <div className="col-span-1 text-right pr-2">{text.action}</div>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100/50 p-2">
             {isLoading ? (
               <div className="p-12 text-center">
                 <RefreshCw size={24} className="text-teal-500 animate-spin mx-auto mb-2" />
-                <p className="text-sm text-slate-500">{text.loading}</p>
+                <p className="text-sm font-semibold text-slate-500">{text.loading}</p>
               </div>
             ) : filteredPatients.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 text-sm font-medium">
+              <div className="p-8 text-center text-slate-500 text-sm font-semibold">
                 {text.noPatients}
               </div>
             ) : (
-              filteredPatients.map((patient) => (
-                <div
+              filteredPatients.map((patient, idx) => (
+                <motion.div
                   key={patient.id}
+                  initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 + 0.2 }}
                   onClick={() => navigate(`/patient/${patient.id}`)}
-                  className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-slate-50 transition-colors group cursor-pointer"
+                  className="grid grid-cols-12 gap-4 p-4 items-center bg-transparent hover:bg-white hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer rounded-2xl mx-1 my-1 border border-transparent hover:border-slate-100"
                 >
                   <div className="col-span-4 flex items-center gap-3 pl-2">
-                    <div className="w-10 h-10 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm">
+                    <div className="w-11 h-11 rounded-xl bg-slate-100/80 flex items-center justify-center font-bold text-slate-600 text-sm shadow-sm border border-slate-200/50 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
                       {translatePersonName(patient.name, language)
                         .split(' ')
                         .map((n) => n[0])
                         .join('')}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-900 text-sm">{translatePersonName(patient.name, language)}</p>
+                      <p className="font-bold text-slate-900">{translatePersonName(patient.name, language)}</p>
                       <p className="text-xs text-slate-500 font-medium">
                         {text.age} {patient.age} &bull; {translateWardLabel(patient.ward, language)}
                       </p>
@@ -287,38 +294,41 @@ export default function PatientDirectory() {
 
                   <div className="col-span-3 flex gap-2 flex-wrap">
                     {patient.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-600 border border-slate-200 rounded text-[10px] font-bold uppercase tracking-wider">
+                      <span key={tag} className="px-2.5 py-1 bg-slate-100/80 text-slate-600 border border-slate-200/50 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-sm">
                         {translateTag(tag, language, text)}
                       </span>
                     ))}
                   </div>
 
                   <div className="col-span-4 flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${patient.risk === 'red' ? 'bg-red-500 animate-pulse' : patient.risk === 'yellow' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                    <div className="relative flex h-3 w-3">
+                      {patient.risk === 'red' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>}
+                      <span className={`relative inline-flex rounded-full h-3 w-3 ${patient.risk === 'red' ? 'bg-red-500' : patient.risk === 'yellow' ? 'bg-amber-400' : 'bg-emerald-400'}`}></span>
+                    </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-800 flex items-center gap-1.5">
                         {translateIssue(patient.issue, language, text)}
                       </p>
-                      <p className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                      <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
                         <Clock size={12} /> {text.lastUpdated}: {translateLastVisit(patient.lastVisit, language, text)}
                       </p>
                     </div>
                   </div>
 
                   <div className="col-span-1 flex justify-end pr-2">
-                    <button className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors opacity-0 group-hover:opacity-100">
+                    <button className="p-2 text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 group-hover:scale-110 rounded-xl transition-all opacity-0 group-hover:opacity-100">
                       <ChevronRight size={20} />
                     </button>
-                    <button className="p-2 text-slate-400 hover:text-slate-700 rounded transition-colors sm:hidden">
+                    <button className="p-2 text-slate-400 hover:text-slate-700 rounded-xl transition-colors sm:hidden">
                       <MoreVertical size={20} />
                     </button>
                   </div>
-                </div>
+                </motion.div>
               ))
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

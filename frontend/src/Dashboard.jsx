@@ -3,6 +3,7 @@ import {
   Plus, Users, Baby, RefreshCw, 
   ChevronRight, AlertCircle, Activity, CheckCircle2 
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import jsQR from 'jsqr';
 import MagicBento from './MagicBento';
@@ -223,22 +224,22 @@ export default function Dashboard() {
   const getCardStyles = (risk) => {
     switch (risk) {
       case 'red':
-        return 'bg-red-50 border-l-[3px] border-red-500 shadow-sm relative overflow-hidden group';
+        return 'bg-white/80 backdrop-blur-xl border-l-4 border-l-red-500 border-white/60 shadow-[0_4px_24px_rgba(239,68,68,0.15)] relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_12px_36px_rgba(239,68,68,0.25)]';
       case 'yellow':
-        return 'bg-yellow-50/50 border-l-[3px] border-yellow-400 group';
+        return 'bg-white/80 backdrop-blur-xl border-l-4 border-l-amber-400 border-white/60 shadow-sm group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
       case 'green':
-        return 'bg-white border border-slate-200 group';
+        return 'bg-white/80 backdrop-blur-xl border-white/60 border-l-4 border-l-teal-400 shadow-sm group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
       default:
-        return 'bg-white border border-slate-200 group';
+        return 'bg-white/80 backdrop-blur-xl border-white/60 shadow-sm group hover:-translate-y-1 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]';
     }
   };
 
   const getBadgeStyles = (risk) => {
     switch (risk) {
-      case 'red': return 'bg-red-100 text-red-700';
-      case 'yellow': return 'bg-yellow-100 text-yellow-700';
-      case 'green': return 'bg-teal-50 text-teal-700';
-      default: return 'bg-slate-100 text-slate-700';
+      case 'red': return 'bg-red-500 text-white shadow-sm';
+      case 'yellow': return 'bg-amber-400 text-white shadow-sm';
+      case 'green': return 'bg-teal-500 text-white shadow-sm';
+      default: return 'bg-slate-200 text-slate-700 shadow-sm';
     }
   };
 
@@ -260,8 +261,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 lg:p-10 font-inter">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="max-w-7xl mx-auto space-y-8"
+      >
         
         <div className="flex justify-between items-end">
           <div>
@@ -297,55 +303,55 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <MagicBento glowColor="14, 165, 233" className="bg-white p-5 cursor-default">
+          <MagicBento glowColor="14, 165, 233" className="p-6 cursor-default">
             <div className="flex justify-between items-start mb-6">
-              <span className="text-sm font-medium text-slate-500">{text.pendingVisits}</span>
-              <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center">
-                <Activity size={16} className="text-sky-500" />
+              <span className="text-sm font-semibold text-slate-600">{text.pendingVisits}</span>
+              <div className="w-10 h-10 rounded-xl bg-sky-50/50 flex items-center justify-center shadow-sm border border-sky-100/50">
+                <Activity size={18} className="text-sky-500" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-slate-900">{patients.length}</span>
-              <span className="text-sm text-slate-500">{text.families}</span>
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-slate-900 to-slate-600">{patients.length}</span>
+              <span className="text-sm font-medium text-slate-500">{text.families}</span>
             </div>
           </MagicBento>
 
-          <MagicBento glowColor="239, 68, 68" className="bg-white p-5 cursor-default">
+          <MagicBento glowColor="239, 68, 68" className="p-6 cursor-default">
             <div className="flex justify-between items-start mb-6">
-              <span className="text-sm font-medium text-slate-500">{text.highRisk}</span>
-              <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                <AlertCircle size={16} className="text-red-500" />
+              <span className="text-sm font-semibold text-slate-600">{text.highRisk}</span>
+              <div className="w-10 h-10 rounded-xl bg-red-50/50 flex items-center justify-center shadow-sm border border-red-100/50">
+                <AlertCircle size={18} className="text-red-500" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-slate-900">{highRiskCount}</span>
-              <span className="text-sm text-slate-500">{text.attentionRequired}</span>
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-red-600 to-rose-400">{highRiskCount}</span>
+              <span className="text-sm font-medium text-slate-500">{text.attentionRequired}</span>
             </div>
           </MagicBento>
 
-          <MagicBento glowColor="168, 85, 247" className="bg-white p-5 cursor-default">
+          <MagicBento glowColor="168, 85, 247" className="p-6 cursor-default">
             <div className="flex justify-between items-start mb-6">
-              <span className="text-sm font-medium text-slate-500">{text.maternalTracks}</span>
-              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                <Baby size={16} className="text-purple-500" />
+              <span className="text-sm font-semibold text-slate-600">{text.maternalTracks}</span>
+              <div className="w-10 h-10 rounded-xl bg-purple-50/50 flex items-center justify-center shadow-sm border border-purple-100/50">
+                <Baby size={18} className="text-purple-500" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-slate-900">{maternalCount}</span>
-              <span className="text-sm text-slate-500">{text.active}</span>
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-purple-700 to-fuchsia-500">{maternalCount}</span>
+              <span className="text-sm font-medium text-slate-500">{text.active}</span>
             </div>
           </MagicBento>
 
-          <MagicBento glowColor="20, 184, 166" className="bg-white p-5 cursor-default">
+          <MagicBento glowColor="20, 184, 166" className="p-6 cursor-default">
             <div className="flex justify-between items-start mb-6">
-              <span className="text-sm font-medium text-slate-500">{text.weeklyGoal}</span>
-              <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center">
-                <CheckCircle2 size={16} className="text-teal-500" />
+              <span className="text-sm font-semibold text-slate-600">{text.weeklyGoal}</span>
+              <div className="w-10 h-10 rounded-xl bg-teal-50/50 flex items-center justify-center shadow-sm border border-teal-100/50">
+                <CheckCircle2 size={18} className="text-teal-500" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-semibold text-slate-900">{weeklyCompletion}%</span>
-              <span className="text-sm text-slate-500">{text.completed}</span>
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-teal-600 to-emerald-400">{weeklyCompletion}%</span>
+              <span className="text-sm font-medium text-slate-500">{text.completed}</span>
             </div>
           </MagicBento>
         </div>
@@ -430,13 +436,13 @@ export default function Dashboard() {
               <h2 className="text-base font-semibold text-slate-900">{text.actions}</h2>
             </div>
 
-            <MagicBento glowColor="203, 213, 225" className="bg-white p-1">
+            <MagicBento glowColor="203, 213, 225" className="p-2">
               <input type="file" id="qr-upload" className="hidden" accept="image/*" onChange={handlePhotoScan} />
 
               <button
                 onClick={() => document.getElementById('qr-upload').click()}
                 disabled={isScanning}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left group border border-transparent"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm border ${isScanning ? 'bg-slate-100' : 'bg-emerald-50 border-emerald-100/50'}`}>
@@ -450,7 +456,7 @@ export default function Dashboard() {
 
               <div className="h-px w-full bg-slate-100" />
 
-              <Link to="/add-patient" className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent">
+              <Link to="/add-patient" className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left group border border-transparent">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-teal-50 rounded-lg flex items-center justify-center shadow-sm border border-teal-100/50">
                     <Plus size={16} className="text-teal-600" />
@@ -461,20 +467,13 @@ export default function Dashboard() {
 
               <div className="h-px w-full bg-slate-100" />
 
-              <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center shadow-sm border border-purple-100/50">
-                    <Baby size={16} className="text-purple-600" />
-                  </div>
-                  <span className="text-sm font-medium text-slate-700">{text.logMaternal}</span>
-                </div>
-              </button>
+              
 
               <div className="h-px w-full bg-slate-100" />
 
               <button
                 onClick={() => navigate('/directory')}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-slate-50 transition-colors text-left group border border-transparent"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-left group border border-transparent"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center shadow-sm border border-blue-100/50">
@@ -485,8 +484,8 @@ export default function Dashboard() {
               </button>
             </MagicBento>
 
-            <h2 className="text-base font-semibold text-slate-900 mt-6 mb-3">{text.schedule}</h2>
-            <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <h2 className="text-base font-semibold text-slate-900 mt-8 mb-3">{text.schedule}</h2>
+            <div className="bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_4px_20px_rgba(0,0,0,0.03)] rounded-2xl p-5">
               <div className="flex items-start gap-4">
                 <div className="flex flex-col items-center justify-center bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 min-w-[3rem]">
                   <span className="text-[10px] font-semibold text-slate-500 uppercase">Oct</span>
@@ -501,7 +500,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

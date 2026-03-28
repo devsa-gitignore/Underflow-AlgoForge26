@@ -34,7 +34,7 @@ const patientSchema = new mongoose.Schema(
       required: [true, 'Assigned ASHA worker/User is required'],
     },
     qrCode: {
-      type: String, // URL or base64
+      type: String, // Base64 or URL
     },
     isPregnant: {
       type: Boolean,
@@ -59,6 +59,7 @@ const patientSchema = new mongoose.Schema(
 );
 
 // Filter out deleted patients in search unless specified
+// Using `where` logic instead of regex/next for Mongoose 9+ compatibility
 patientSchema.pre('find', function () {
   this.where({ isDeleted: false });
 });

@@ -28,7 +28,9 @@ export const sendOTP = async (phone) => {
   await user.save();
 
   // Send real SMS only if explicitly enabled in .env (for demo/production)
-  if (process.env.TWILIO_SEND_OTP === 'true') {
+  const isTwilioEnabled = String(process.env.TWILIO_SEND_OTP).trim().toLowerCase() === 'true';
+
+  if (isTwilioEnabled) {
     try {
       const message = `Namaste! Your Swasthya Sathi login OTP is: ${otp}. Valid for 10 minutes.`;
       await sendSMS(formattedPhone, message);

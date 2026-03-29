@@ -1,19 +1,23 @@
 import twilio from 'twilio';
 
-// Load credentials from environment
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+// Initialize client lazily only when requested to prevent ES Module early read failures
+let _client = null;
 
-// Initialize client only if credentials exist
-let client = null;
-if (accountSid && authToken) {
-  client = twilio(accountSid, authToken);
-}
+const getClient = () => {
+  if (_client) return _client;
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (accountSid && authToken) {
+    _client = twilio(accountSid, authToken);
+  }
+  return _client;
+};
 
 /**
  * Send a standard SMS message.
  */
 export const sendSMS = async (to, body) => {
+  const client = getClient();
   if (!client) throw new Error('Twilio not configured for Live Mode');
   return client.messages.create({
     body,
@@ -26,6 +30,7 @@ export const sendSMS = async (to, body) => {
  * Trigger an outbound IVR call.
  */
 export const startIVRCall = async (to, audioUrl, baseUrl) => {
+  const client = getClient();
   if (!client) throw new Error('Twilio not configured for Live Mode');
   
   // If baseUrl provided, instruct Twilio to hit our language selection IVR

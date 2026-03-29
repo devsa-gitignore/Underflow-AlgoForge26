@@ -147,9 +147,7 @@ export default function Layout() {
           <Link to="/add-patient" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/add-patient') ? 'bg-emerald-900/40 text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
             <Plus size={18} /> {text.addPatient}
           </Link>
-          <Link to="/alerts" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/alerts') ? 'bg-red-900/40 text-red-400' : 'text-slate-400 hover:text-white'}`}>
-            <ShieldAlert size={18} /> {text.alerts}
-          </Link>
+
           
           <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 mt-8">{text.system}</p>
           
@@ -242,10 +240,10 @@ export default function Layout() {
             
             <div className="h-6 w-px bg-slate-200 hidden lg:block mx-1"></div>
             
-            <button className="relative text-slate-500 hover:text-slate-800 transition-colors p-1">
+            <Link to="/alerts" className={`relative transition-colors p-1 ${isActive('/alerts') ? 'text-red-500' : 'text-slate-500 hover:text-slate-800'}`}>
               <Bell size={18} />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-            </button>
+            </Link>
 
             <Link to="/add-patient" className="hidden sm:flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors ml-2">
               <Plus size={16} /> {text.newVisit}

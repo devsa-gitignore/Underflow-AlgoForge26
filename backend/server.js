@@ -1,6 +1,7 @@
 import connectDB from './src/config/db.js';
 import app from './src/app.js';
 import dotenv from 'dotenv';
+import { startFollowUpJob } from './src/jobs/followup.job.js';
 // import './src/workers/translation.worker.js'; // Initialize the async worker - disabled (bullmq not installed)
 
 dotenv.config();
@@ -13,5 +14,8 @@ connectDB().then(() => {
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Start automated background jobs
+    startFollowUpJob();
   });
 });

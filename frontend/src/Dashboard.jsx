@@ -108,37 +108,81 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [isScanning, setIsScanning] = useState(false);
   const [patients, setPatients] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [hiddenCards, setHiddenCards] = useState(() => {
+    return JSON.parse(sessionStorage.getItem('hiddenCards') || '[]');
+  });
   const { language } = useLanguage();
   const text = language === 'hi' ? hindiText : englishText;
 
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchDashboardData = async () => {
       try {
         const token = await getStoredToken();
-        const response = await fetch('http://localhost:5000/patients/search', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const headers = { Authorization: `Bearer ${token}` };
 
-        if (!response.ok) throw new Error('Failed to fetch patients');
-
-        const data = await response.json();
-        setPatients(mapPatients(data));
-      } catch {
-        // Fallback mock data for hackathon demo
-        setPatients([
-          { id: 'mock-1', name: 'Aarti Sharma', age: 28, risk: 'red', issue: 'Severe Anemia - BP 160/100', time: 'Overdue', village: 'Ward 4', isPregnant: true },
-          { id: 'mock-2', name: 'Pooja Patel', age: 24, risk: 'yellow', issue: 'Missed ANC Checkup', time: 'Today', village: 'Ward 4', isPregnant: true },
-          { id: 'mock-3', name: 'Sunita Devi', age: 34, risk: 'green', issue: 'Routine Checkup', time: 'On Track', village: 'Ward 5', isPregnant: false },
-          { id: 'mock-4', name: 'Rahul Kumar', age: 2, risk: 'green', issue: 'Vaccination', time: 'Done', village: 'Ward 2', isPregnant: false },
-          { id: 'mock-5', name: 'Meena Kumari', age: 22, risk: 'yellow', issue: 'Maternal Follow-up', time: 'Tomorrow', village: 'Ward 5', isPregnant: true },
+        const [patientsRes, tasksRes, alertsRes] = await Promise.all([
+          fetch('http://localhost:5000/patients/search', { headers }).catch(() => ({ ok: false })),
+          fetch('http://localhost:5000/asha/me/tasks', { headers }).catch(() => ({ ok: false })),
+          fetch('http://localhost:5000/alerts', { headers }).catch(() => ({ ok: false }))
         ]);
+
+        if (patientsRes.ok) {
+          const data = await patientsRes.json();
+          setPatients(mapPatients(data));
+        } else {
+          // Fallback mock data for hackathon demo
+          setPatients([
+            { id: 'mock-1', name: 'Aarti Sharma', age: 28, risk: 'red', issue: 'Severe Anemia - BP 160/100', time: 'Overdue', village: 'Ward 4', isPregnant: true },
+            { id: 'mock-2', name: 'Pooja Patel', age: 24, risk: 'yellow', issue: 'Missed ANC Checkup', time: 'Today', village: 'Ward 4', isPregnant: true },
+            { id: 'mock-3', name: 'Sunita Devi', age: 34, risk: 'green', issue: 'Routine Checkup', time: 'On Track', village: 'Ward 5', isPregnant: false },
+            { id: 'mock-4', name: 'Rahul Kumar', age: 2, risk: 'green', issue: 'Vaccination', time: 'Done', village: 'Ward 2', isPregnant: false },
+            { id: 'mock-5', name: 'Meena Kumari', age: 22, risk: 'yellow', issue: 'Maternal Follow-up', time: 'Tomorrow', village: 'Ward 5', isPregnant: true },
+          ]);
+        }
+        
+        if (tasksRes.ok) {
+          const data = await tasksRes.json();
+          setTasks(data.tasks || []);
+        }
+
+        if (alertsRes.ok) {
+          const data = await alertsRes.json();
+          setAlerts(data.alerts || []);
+        }
+      } catch (err) {
+        console.error(err);
       }
     };
 
-    fetchPatients();
+    fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 15000);
+    return () => clearInterval(interval);
   }, []);
+
+  const handleCompleteTask = async (taskId, e) => {
+    e.stopPropagation();
+    try {
+      const token = await getStoredToken();
+      const res = await fetch(`http://localhost:5000/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        setTasks(prev => prev.map(t => t._id === taskId ? { ...t, status: 'COMPLETED' } : t));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleCardClick = (id, targetUrl) => {
+    const newHidden = [...hiddenCards, id];
+    setHiddenCards(newHidden);
+    sessionStorage.setItem('hiddenCards', JSON.stringify(newHidden));
+    navigate(targetUrl);
+  };
 
 
   const handlePhotoScan = (e) => {
@@ -285,6 +329,30 @@ export default function Dashboard() {
           </Link>
         </div>
 
+        {alerts.filter(a => a.status === 'ACTIVE' && a.type === 'MISSED_FOLLOWUP' && !hiddenCards.includes(a._id)).map(alert => (
+          <div key={alert._id} className="bg-red-50 border-l-4 border-l-red-600 rounded-xl p-4 flex items-start sm:items-center justify-between gap-4 shadow-[0_4px_24px_rgba(239,68,68,0.15)] mb-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle size={20} className="text-red-600 mt-0.5 shrink-0 animate-pulse" />
+              <div>
+                <h3 className="font-bold text-red-800 text-sm flex items-center gap-2">
+                  Missed Follow-up (HIGH PRIORITY)
+                </h3>
+                <p className="text-red-700/90 text-sm mt-1 max-w-2xl font-medium">
+                  {alert.message} - {alert.patientId?.name || "Patient"} missed their scheduled appointment.
+                </p>
+              </div>
+            </div>
+            {alert.patientId && (
+              <button
+                onClick={() => handleCardClick(alert._id, `/patient/${alert.patientId._id || alert.patientId}`)}
+                className="hidden sm:block px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+              >
+                View Patient
+              </button>
+            )}
+          </div>
+        ))}
+
         {featuredPatient && featuredPatient.risk === 'red' && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
@@ -366,23 +434,47 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4 mt-2">
               <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                {text.priorityQueue}
+                Pending Tasks & Priority Queue
               </h2>
               <button onClick={() => navigate('/directory')} className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
                 {text.seeAll}
               </button>
             </div>
 
+            <div className="flex flex-col gap-3 mb-6">
+              {tasks.filter(t => t.status !== 'COMPLETED' && !hiddenCards.includes(t._id)).map(task => (
+                <div key={task._id} 
+                     onClick={() => task.patientId?._id && handleCardClick(task._id, `/patient/${task.patientId._id}`)}
+                     className={`cursor-pointer p-4 rounded-xl flex justify-between items-center border shadow-sm transition-all hover:-translate-y-1 ${task.status === 'MISSED' ? 'bg-red-50/80 border-red-200 shadow-[0_4px_16px_rgba(239,68,68,0.1)]' : 'bg-white border-slate-200'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${task.status === 'MISSED' ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-700'}`}>
+                      {task.patientId?.name?.charAt(0) || 'P'}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        {task.patientId?.name || 'Unknown Patient'}
+                        {task.status === 'MISSED' && <span className="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider bg-red-500 text-white">MISSED</span>}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-medium">{task.type} &bull; Due: {new Date(task.dueDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <button onClick={(e) => handleCompleteTask(task._id, e)} className="px-3 py-1.5 bg-emerald-100/80 text-emerald-700 hover:bg-emerald-200 rounded-lg text-xs font-bold transition-colors shadow-sm">
+                    Mark Done
+                  </button>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-col gap-3">
-              {priorityPatients.length === 0 ? (
+              {priorityPatients.filter(p => !hiddenCards.includes(p.id)).length === 0 ? (
                 <div className="bg-white border border-slate-200 rounded-xl p-6 text-sm text-slate-500">
                   {text.noPatients}
                 </div>
               ) : (
-                priorityPatients.map((patient) => (
+                priorityPatients.filter(p => !hiddenCards.includes(p.id)).map((patient) => (
                   <div
                     key={patient.id}
-                    onClick={() => navigate(`/patient/${patient.id}`)}
+                    onClick={() => handleCardClick(patient.id, `/patient/${patient.id}`)}
                     className={`p-3 rounded-xl transition-all cursor-pointer relative group ${getCardStyles(patient.risk)}`}
                   >
                     {patient.risk === 'red' && (

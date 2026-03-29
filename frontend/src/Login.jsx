@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User, Lock, Mail, ArrowRight, Building2, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Lock, Mail, ArrowRight, Building2, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
@@ -143,76 +143,161 @@ export default function Login() {
 }
 
 function AshaLogin() {
-  const [password, setPassword] = useState('');
-  const workerId = 'AW-1029';
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1: phone, 2: otp
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSendOTP = async (e) => {
     e.preventDefault();
+    if (!phone) return setError('Please enter a phone number');
+    
+    setLoading(true);
+    setError('');
+    setSuccessMsg('');
+
     try {
-      const response = await fetch('http://localhost:5000/auth/dev-token');
+      const response = await fetch('http://localhost:5000/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
+        setStep(2);
+        setSuccessMsg(`OTP sent to your number`);
+      } else {
+        setError(data.message || 'Failed to send OTP.');
+      }
+    } catch (err) {
+      setError('Connection to backend failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:5000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
         localStorage.setItem('swasthya_token', data.token);
         localStorage.setItem('swasthya_user', JSON.stringify(data));
         navigate('/dashboard');
       } else {
-        // Fallback if backend is not started/errored
-        console.warn("Backend not reached for dev-token. Entering demo mode.");
-        navigate('/dashboard');
+        setError(data.message || 'Invalid OTP.');
       }
-    } catch {
-      console.warn("Connection to backend failed. Entering demo mode.");
-      navigate('/dashboard');
+    } catch (err) {
+      setError('Verification failed.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleLogin} className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       
-      {/* Worker Profile Card */}
-      <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center gap-4">
-        <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-semibold text-lg">
-          JN
+      {/* Visual Header */}
+      <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl flex items-center gap-4">
+        <div className="w-12 h-12 bg-teal-100 rounded-2xl flex items-center justify-center text-teal-600 shadow-inner">
+          <User size={24} />
         </div>
-        <div className="flex-1">
-          <p className="font-semibold text-slate-900">Jash Nikombhe</p>
-          <p className="text-xs text-slate-500 mt-0.5">ID: {workerId} &bull; Ward 4</p>
-        </div>
-        <button type="button" className="text-xs font-semibold text-teal-600 hover:text-teal-700 px-3 py-1.5 bg-teal-50 rounded-lg transition-colors">
-          Change
-        </button>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-        <div className="relative">
-          <Lock className="absolute left-3.5 top-3 text-slate-400" size={18} />
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            className="w-full bg-white border border-slate-300 pl-10 pr-4 py-2.5 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 transition-all text-slate-900 text-sm placeholder-slate-400"
-            required
-          />
+        <div>
+           <p className="font-black text-slate-900 leading-none mb-1">ASHA Access</p>
+           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Village Field Worker Portal</p>
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <button type="button" className="text-xs font-medium text-slate-500 hover:text-teal-600 transition-colors">
-          Forgot Password?
-        </button>
-      </div>
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-xs font-black rounded-xl flex items-center gap-3">
+          <AlertTriangle size={16} /> {error}
+        </div>
+      )}
 
-      <button 
-        type="submit"
-        disabled={password.length === 0}
-        className="w-full py-3 mt-2 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all bg-teal-600 text-white hover:bg-teal-700 disabled:bg-slate-100 disabled:text-slate-400"
-      >
-        Sign In <ArrowRight size={16} />
-      </button>
-    </form>
+      {successMsg && (
+        <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs font-black rounded-xl flex items-center gap-3">
+          <CheckCircle2 size={16} /> {successMsg}
+        </div>
+      )}
+
+      {step === 1 ? (
+        <form onSubmit={handleSendOTP} className="space-y-6">
+          <div>
+            <label className="block text-sm font-black text-slate-700 mb-2">Authenticated Phone Number</label>
+            <div className="relative group">
+              <span className="absolute left-4 top-4 text-slate-400 font-black text-sm group-focus-within:text-teal-500 transition-colors">+91</span>
+              <input 
+                type="tel" 
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="00000-00000"
+                className="w-full bg-slate-50 border border-slate-200 pl-14 pr-4 py-4 rounded-2xl focus:outline-none focus:border-teal-500 focus:bg-white focus:ring-8 focus:ring-teal-500/5 transition-all text-slate-900 text-sm font-bold tracking-widest"
+                required
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={loading || phone.length < 10}
+            className="w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all bg-teal-600 text-white hover:bg-teal-700 disabled:bg-slate-100 disabled:text-slate-400 shadow-[0_10px_30px_rgba(20,184,166,0.3)] hover:shadow-[0_15px_40px_rgba(20,184,166,0.4)] hover:-translate-y-1"
+          >
+            {loading ? 'Sending Request...' : 'Get Login OTP'} <ArrowRight size={20} />
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyOTP} className="space-y-6">
+          <div>
+            <label className="block text-sm font-black text-slate-700 mb-2">Verification Code</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-4.5 text-slate-300" size={20} />
+              <input 
+                type="text" 
+                maxLength="6"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="000000"
+                className="w-full bg-slate-50 border border-slate-200 pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-8 focus:ring-emerald-500/5 transition-all text-slate-900 text-2xl tracking-[0.8em] font-black placeholder:tracking-normal placeholder:font-normal"
+                required
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            disabled={loading || otp.length < 6}
+            className="w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 shadow-[0_10px_30px_rgba(16,185,129,0.3)]"
+          >
+            {loading ? 'Verifying...' : 'Verify & Continue'} <ArrowRight size={20} />
+          </button>
+
+          <button 
+            type="button" 
+            onClick={() => setStep(1)}
+            className="w-full text-[10px] font-black text-slate-400 hover:text-teal-600 transition-colors py-2 uppercase tracking-widest"
+          >
+            Change Number
+          </button>
+        </form>
+      )}
+    </div>
   );
 }
 

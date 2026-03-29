@@ -8,10 +8,11 @@ import fs from 'fs';
 import path from 'path';
 import { AUDIO_DIR } from '../middlewares/upload.middleware.js';
 
-const isMock = process.env.COMM_MODE === 'mock' || !process.env.COMM_MODE;
+// We evaluate this lazily down the line because ES modules hoist process.env prematurely before dotenv.config() finishes loading.
 
 export const sendSMS = async (phone, message) => {
-  if (isMock) {
+  const isMockEnv = process.env.COMM_MODE === 'mock' || !process.env.COMM_MODE;
+  if (isMockEnv) {
     console.log(`[MOCK SMS] To ${phone}: "${message}"`);
     return { success: true, mode: 'mock', messageId: 'MOCK_SMS_123' };
   }
@@ -27,7 +28,8 @@ export const generateTTS = async (text) => {
  * Starts an outbound IVR call to a patient.
  */
 export const startIVRCall = async (phone, audioUrl, baseUrl) => {
-  if (isMock) {
+  const isMockEnv = process.env.COMM_MODE === 'mock' || !process.env.COMM_MODE;
+  if (isMockEnv) {
     console.log(`📞 [MOCK IVR CALL] To ${phone} with audio: ${audioUrl || 'Default'}`);
     return { success: true, mode: 'mock', callSid: 'MOCK_CALL_123' };
   }

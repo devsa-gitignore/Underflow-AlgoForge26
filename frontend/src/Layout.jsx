@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { 
   Menu, Bell, CloudOff, Plus, Languages,
   Search, LayoutDashboard, Users, Baby, RefreshCw, 
-  Settings, LogOut, ShieldAlert 
+  Settings, LogOut, ShieldAlert, UploadCloud
 } from 'lucide-react';
 import { useLanguage } from './language-context';
+import { getStoredToken } from './auth-utils';
+import { getQueue, clearQueue } from './sync-utils';
 
 export default function Layout() {
   const [isOffline, setIsOffline] = useState(false);
@@ -47,7 +49,73 @@ export default function Layout() {
         newVisit: 'New Visit',
         switchToHindi: 'हिंदी',
         switchToEnglish: 'English',
+        syncNow: 'Sync Now',
+        syncing: 'Syncing Data...',
       };
+
+  const [queueLength, setQueueLength] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Hook to track real network status and queue items
+  useEffect(() => {
+    const handleNetworkChange = () => setIsOffline(!navigator.onLine);
+    const updateQueueSize = () => {
+      const q = getQueue();
+      setQueueLength(q.length);
+    };
+
+    // Initial check
+    handleNetworkChange();
+    updateQueueSize();
+
+    window.addEventListener('online', handleNetworkChange);
+    window.addEventListener('offline', handleNetworkChange);
+    window.addEventListener('syncUpdate', updateQueueSize);
+
+    // Initial listener for hackathon demo
+    const interval = setInterval(updateQueueSize, 2000); 
+
+    return () => {
+      window.removeEventListener('online', handleNetworkChange);
+      window.removeEventListener('offline', handleNetworkChange);
+      window.removeEventListener('syncUpdate', updateQueueSize);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleManualSync = async () => {
+    const actions = getQueue();
+    if (actions.length === 0) return;
+
+    setIsSyncing(true);
+    try {
+      const token = await getStoredToken();
+      // Assume AW-1029 is the local worker
+      const payload = { ashaId: 'AW-1029', actions };
+
+      const response = await fetch('http://localhost:5000/sync/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("Sync failed. Check Server.");
+
+      const result = await response.json();
+      console.log("Sync Complete:", result);
+      
+      clearQueue();
+      alert(`Sync successful! Processed ${result.processed} new records.`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to sync. Please ensure you are online and the server is reachable.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   return (
     <div className="h-screen bg-slate-50/50 flex font-inter text-slate-900 overflow-hidden w-full">
@@ -82,15 +150,29 @@ export default function Layout() {
           
           <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 mt-8">{text.system}</p>
           
-          <button 
-            onClick={() => setIsOffline(!isOffline)}
-            className="w-full flex items-center justify-between px-3 py-2 text-slate-400 hover:text-white rounded-md text-sm font-medium transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <RefreshCw size={18} /> {text.offlineMode}
+          <div className="px-3 py-2">
+            <div className="w-full flex items-center justify-between text-slate-400 rounded-md text-sm font-medium transition-colors cursor-default mb-2">
+              <div className="flex items-center gap-3">
+                <RefreshCw size={18} /> {text.offlineMode}
+              </div>
+              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-400' : 'bg-teal-400'}`} />
             </div>
-            <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-400' : 'bg-teal-400'}`} />
-          </button>
+            
+            {queueLength > 0 && (
+              <button
+                onClick={handleManualSync}
+                disabled={isSyncing || isOffline}
+                className={`w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-md text-sm font-medium transition-colors ${
+                  isOffline || isSyncing 
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+                    : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-900/20'
+                }`}
+              >
+                <UploadCloud size={16} className={isSyncing ? "animate-bounce" : ""} />
+                {isSyncing ? text.syncing : `${text.syncNow} (${queueLength})`}
+              </button>
+            )}
+          </div>
 
         </nav>
 
@@ -133,9 +215,26 @@ export default function Layout() {
               <Languages size={16} />
               {language === 'en' ? text.switchToHindi : text.switchToEnglish}
             </button>
-            <div className="hidden lg:flex items-center gap-2 cursor-pointer" onClick={() => setIsOffline(!isOffline)}>
-              <span className="text-xs font-medium text-slate-500">{isOffline ? text.offlineStatus : text.syncedStatus}</span>
-              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-teal-500'}`} />
+            <div className="hidden lg:flex items-center gap-2">
+              {queueLength > 0 ? (
+                <button 
+                  onClick={handleManualSync}
+                  disabled={isSyncing || isOffline}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm ${
+                    isOffline || isSyncing 
+                      ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed' 
+                      : 'bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100'
+                  }`}
+                >
+                  <UploadCloud size={14} className={isSyncing ? "animate-bounce" : ""} />
+                  {isSyncing ? text.syncing : `${text.syncNow} (${queueLength})`}
+                </button>
+              ) : (
+                <div className="flex items-center gap-2 px-2">
+                  <span className="text-xs font-medium text-slate-500">{isOffline ? text.offlineStatus : text.syncedStatus}</span>
+                  <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-teal-500'}`} />
+                </div>
+              )}
             </div>
             
             <div className="h-6 w-px bg-slate-200 hidden lg:block mx-1"></div>

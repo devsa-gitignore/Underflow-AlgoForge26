@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './language-context';
 import { getStoredToken } from './auth-utils';
 import { enqueueAction, isOfflineError } from './sync-utils';
-import QRCode from 'qrcode';
 export default function AddPatient() {
   const navigate = useNavigate();
   const { language: appLanguage } = useLanguage();
@@ -128,6 +127,7 @@ export default function AddPatient() {
     bloodSugar: '',
     symptoms: '',
     otherFactors: '',
+    lmp: '',
   });
 
   const handleInputChange = (e) => {
@@ -156,6 +156,7 @@ export default function AddPatient() {
       village: formData.ward,
       region: 'Palghar', // Default region
       isPregnant: formData.category === 'maternal',
+      pregnancyStartDate: formData.category === 'maternal' ? formData.lmp : null,
       pendingTask: formData.pendingTask || 'Routine Checkup',
     };
 
@@ -171,7 +172,6 @@ export default function AddPatient() {
     try {
       const token = localStorage.getItem('swasthya_token');
       if (!token) throw new Error("Authentication token missing. Please log in again.");
-
       console.log("🚀 Creating patient with payload:", patientPayload);
 
       // 1. Create Patient Record in DB
@@ -282,7 +282,7 @@ export default function AddPatient() {
               {step > num ? <CheckCircle2 size={16} /> : num}
             </div>
             <span className={`text-[10px] font-semibold ${step >= num ? 'text-slate-800' : 'text-slate-400'}`}>
-              {num === 1 ? text.identity : num === 2 ? text.location : num === 3 ? text.category : num === 4 ? 'Vitals' : text.details}
+              {num === 1 ? text.identity : num === 2 ? text.location : num === 3 ? text.category : num === 4 ? 'Clinical Checkup' : text.details}
             </span>
           </div>
         ))}
@@ -461,6 +461,27 @@ export default function AddPatient() {
                   </button>
 
                 </div>
+
+                {/* Conditional LMP Field for Maternal Care */}
+                {formData.category === 'maternal' && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl"
+                  >
+                    <label className="block text-sm font-bold text-emerald-900 mb-2">
+                      Last Menstrual Period (LMP) Date
+                    </label>
+                    <p className="text-xs text-emerald-600 mb-3 font-medium">Used to calculate the 9-month care roadmap.</p>
+                    <input 
+                      type="date" 
+                      name="lmp" 
+                      value={formData.lmp} 
+                      onChange={handleInputChange}
+                      className="w-full h-11 rounded-xl border border-emerald-200 bg-white px-4 text-sm text-slate-900 shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all"
+                    />
+                  </motion.div>
+                )}
               </div>
             )}
 
@@ -468,8 +489,8 @@ export default function AddPatient() {
             {step === 4 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300 flex-1 space-y-5">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">Clinical Vitals</h3>
-                  <p className="text-sm text-slate-500 font-medium">Record the patient's current measurements for this visit.</p>
+                  <h3 className="text-lg font-black text-slate-900 mb-1 tracking-tight">Clinical Checkup & AI Data</h3>
+                  <p className="text-sm text-slate-500 font-medium">Record the patient's vitals. This data is used by the AI to calculate pregnancy risk.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

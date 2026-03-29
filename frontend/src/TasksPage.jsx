@@ -281,6 +281,9 @@ export default function TasksPage() {
                           <span className="px-2 py-0.5 bg-orange-100 text-orange-800 text-[10px] uppercase font-bold tracking-wider rounded-md">
                             {task.type}
                           </span>
+                          <span className={`px-2 py-0.5 text-[10px] uppercase font-bold tracking-wider rounded-md ${task.status === 'PENDING' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`}>
+                            {task.status}
+                          </span>
                         </div>
                         <p className="text-sm font-medium text-slate-600 flex items-center gap-1.5 mt-1">
                           <CalendarX2 size={16} className={task.status === 'PENDING' ? 'text-blue-400' : 'text-slate-400'} />

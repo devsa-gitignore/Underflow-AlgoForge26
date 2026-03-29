@@ -120,7 +120,13 @@ export default function AddPatient() {
     address: '',
     category: '',
     notes: '',
-    pendingTask: 'Routine Checkup' 
+    pendingTask: 'Routine Checkup',
+    // Vitals (Step 4)
+    bp: '',
+    weight: '',
+    bloodSugar: '',
+    symptoms: '',
+    otherFactors: '',
   });
 
   const handleInputChange = (e) => {
@@ -132,7 +138,7 @@ export default function AddPatient() {
     setFormData(prev => ({ ...prev, category }));
   };
 
-  const handleNext = () => setStep(prev => Math.min(prev + 1, 4));
+  const handleNext = () => setStep(prev => Math.min(prev + 1, 5));
   const handleBack = () => setStep(prev => Math.max(prev - 1, 1));
 
   const generateQR = async () => {
@@ -253,25 +259,25 @@ export default function AddPatient() {
   const StepIndicator = () => (
     <div className="mb-8 relative">
       <div className="flex justify-between relative z-10">
-        {[1, 2, 3, 4].map((num) => (
+        {[1, 2, 3, 4, 5].map((num) => (
           <div key={num} className="flex flex-col items-center gap-2">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
               step >= num 
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' 
                 : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
             }`}>
-              {step > num ? <CheckCircle2 size={18} /> : num}
+              {step > num ? <CheckCircle2 size={16} /> : num}
             </div>
-            <span className={`text-xs font-semibold ${step >= num ? 'text-slate-800' : 'text-slate-400'}`}>
-              {num === 1 ? text.identity : num === 2 ? text.location : num === 3 ? text.category : text.details}
+            <span className={`text-[10px] font-semibold ${step >= num ? 'text-slate-800' : 'text-slate-400'}`}>
+              {num === 1 ? text.identity : num === 2 ? text.location : num === 3 ? text.category : num === 4 ? 'Vitals' : text.details}
             </span>
           </div>
         ))}
       </div>
-      <div className="absolute top-5 left-0 w-full h-1 bg-slate-100 -z-0 rounded-full">
+      <div className="absolute top-[18px] left-0 w-full h-1 bg-slate-100 -z-0 rounded-full">
         <div 
           className="h-full bg-emerald-500 transition-all duration-500 rounded-full" 
-          style={{ width: `${((step - 1) / 3) * 100}%` }}
+          style={{ width: `${((step - 1) / 4) * 100}%` }}
         />
       </div>
     </div>
@@ -444,8 +450,64 @@ export default function AddPatient() {
               </div>
             )}
 
-            {/* STEP 4: QR & NOTES */}
+            {/* STEP 4: VITALS */}
             {step === 4 && (
+              <div className="animate-in fade-in slide-in-from-right-4 duration-300 flex-1 space-y-5">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">Clinical Vitals</h3>
+                  <p className="text-sm text-slate-500 font-medium">Record the patient's current measurements for this visit.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Blood Pressure (mmHg)</label>
+                    <input
+                      type="text" name="bp" value={formData.bp} onChange={handleInputChange}
+                      placeholder="e.g. 120/80"
+                      className={fieldClassName}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Weight (kg)</label>
+                    <input
+                      type="number" name="weight" value={formData.weight} onChange={handleInputChange}
+                      placeholder="e.g. 62"
+                      className={fieldClassName}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Blood Sugar (mg/dL)</label>
+                  <input
+                    type="number" name="bloodSugar" value={formData.bloodSugar} onChange={handleInputChange}
+                    placeholder="e.g. 110 (fasting)"
+                    className={fieldClassName}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Symptoms Reported</label>
+                  <textarea
+                    name="symptoms" value={formData.symptoms} onChange={handleInputChange} rows={2}
+                    placeholder="e.g. Headache, nausea, swelling in feet..."
+                    className={textareaClassName}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Other Factors / Notes</label>
+                  <textarea
+                    name="otherFactors" value={formData.otherFactors} onChange={handleInputChange} rows={2}
+                    placeholder="e.g. Patient is on medication X, family history of..."
+                    className={textareaClassName}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: QR & NOTES */}
+            {step === 5 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300 flex-1 space-y-6">
                 
                 {/* Voice to Text Notes */}
@@ -536,7 +598,7 @@ export default function AddPatient() {
                 <ChevronLeft size={18} /> {text.back}
                </button>
 
-              {step < 4 ? (
+              {step < 5 ? (
                 <button 
                   onClick={handleNext}
                   className="px-6 py-2.5 bg-slate-900 text-white rounded-xl font-semibold text-sm flex items-center gap-2 hover:bg-slate-800 transition-all shadow-md active:scale-[0.98] hover:shadow-lg"

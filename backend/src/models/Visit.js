@@ -25,6 +25,10 @@ const visitSchema = new mongoose.Schema(
       temperature: { type: Number },
       bloodPressure: { type: String },
       weight: { type: Number },
+      bloodSugar: { type: Number },
+    },
+    otherFactors: {
+      type: String,
     },
     riskLevel: {
       type: String,

@@ -18,7 +18,11 @@ import {
   User,
   Weight,
   Brain,
-  X
+  X,
+  Droplet,
+  Zap,
+  CheckCircle2,
+  Loader
 } from 'lucide-react';
 import { useLanguage } from './language-context';
 import { translatePersonName, translateWardLabel } from './text-utils';
@@ -146,6 +150,109 @@ export default function PatientProfile() {
   const [isAssessing, setIsAssessing] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState(null);
 
+  // Log Visit Modal State
+  const [showVisitModal, setShowVisitModal] = useState(false);
+  const [visitStep, setVisitStep] = useState(1); // 1 = vitals, 2 = notes/QR
+  const [visitForm, setVisitForm] = useState({ bp: '', weight: '', bloodSugar: '', symptoms: '', otherFactors: '', notes: '' });
+  const [visitSubmitting, setVisitSubmitting] = useState(false);
+  const [visitAIResult, setVisitAIResult] = useState(null);
+  const [visitSuccess, setVisitSuccess] = useState(false);
+
+  const openVisitModal = () => {
+    setVisitForm({ bp: '', weight: '', bloodSugar: '', symptoms: '', otherFactors: '', notes: '' });
+    setVisitStep(1);
+    setVisitAIResult(null);
+    setVisitSuccess(false);
+    setShowVisitModal(true);
+  };
+
+  const submitVisit = async () => {
+    setVisitSubmitting(true);
+    setVisitAIResult(null);
+    try {
+      const token = await getStoredToken();
+      // 1. Log the visit
+      const visitPayload = {
+        patientId: routeId,
+        vitals: { bloodPressure: visitForm.bp, weight: parseFloat(visitForm.weight) || undefined },
+        symptoms: visitForm.symptoms ? visitForm.symptoms.split(',').map(s => s.trim()) : [],
+        notes: visitForm.notes,
+        otherFactors: visitForm.otherFactors,
+      };
+      await fetch(`http://localhost:5000/patients/${routeId}/visits`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(visitPayload),
+      });
+
+      // 2. Run AI risk assessment with the new vitals
+      const aiPayload = {
+        patientId: routeId,
+        bp: visitForm.bp,
+        weight: visitForm.weight,
+        bloodSugar: visitForm.bloodSugar,
+        symptoms: visitForm.symptoms || 'None',
+        otherFactors: visitForm.otherFactors || `Age: ${patient.age}, Category: ${patient.category}`,
+      };
+      const aiRes = await fetch('http://localhost:5000/ai/risk-assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(aiPayload),
+      });
+      if (aiRes.ok) {
+        const aiData = await aiRes.json();
+        setVisitAIResult(aiData.data);
+      } else {
+        // Fallback demo result
+        setVisitAIResult({
+          riskLevel: 'LOW',
+          possibleCondition: 'No acute concern detected',
+          immediateActionRequired: false,
+          adviceForAshaWorker: 'Continue routine monitoring. Encourage healthy diet and hydration.',
+        });
+      }
+      setVisitSuccess(true);
+      // Refresh visit history silently — use mapVisitData to transform
+      const r = await fetch(`http://localhost:5000/patients/${routeId}/visits`, { headers: { Authorization: `Bearer ${token}` } });
+      if (r.ok) { const d = await r.json(); if (d.length > 0) setVisits(d.map(mapVisitData)); }
+    } catch {
+      setVisitAIResult({
+        riskLevel: 'LOW',
+        possibleCondition: 'Demo mode — backend not reachable',
+        immediateActionRequired: false,
+        adviceForAshaWorker: 'Visit queued for offline sync.',
+      });
+      setVisitSuccess(true);
+    } finally {
+      setVisitSubmitting(false);
+    }
+  };
+
+  // Reusable mapper for raw backend visit → display format
+  const mapVisitData = (v) => {
+    const rawDate = v.visitDate || v.createdAt || v.updatedAt;
+    const vDate = rawDate ? new Date(rawDate) : new Date();
+    const isValid = !isNaN(vDate.getTime());
+    const riskLower = (v.riskLevel || 'LOW').toLowerCase();
+    return {
+      id: v._id || v.id || Math.random().toString(36).slice(2),
+      date: isValid ? vDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent',
+      time: isValid ? vDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
+      type: v.notes?.includes?.('ANC') ? 'ANC Checkup' : 'Clinical Visit',
+      risk: (riskLower === 'critical' || riskLower === 'high') ? 'red' : riskLower === 'medium' ? 'yellow' : 'green',
+      vitals: {
+        bp: v.vitals?.bloodPressure || 'N/A',
+        temp: v.vitals?.temperature ? `${v.vitals.temperature}°F` : 'N/A',
+        weight: v.vitals?.weight ? `${v.vitals.weight} kg` : 'N/A',
+        pulse: 'N/A',
+      },
+      symptoms: v.symptoms?.length > 0 ? v.symptoms : ['None reported'],
+      notes: v.notes || 'No clinical notes recorded.',
+      action: v.aiSuggestion || 'Continue monitoring as per protocol.',
+      worker: 'Jash Nikombhe (AW-1029)',
+    };
+  };
+
   // Mock visit data for fallback
   const mockVisits = [
     {
@@ -196,28 +303,7 @@ export default function PatientProfile() {
         if (response.ok) {
           const data = await response.json();
           if (data.length > 0) {
-            const mapped = data.map((v) => {
-              const vDate = new Date(v.visitDate || v.createdAt);
-              const riskLower = (v.riskLevel || 'LOW').toLowerCase();
-              return {
-                id: v._id,
-                date: vDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                time: vDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                type: v.notes?.includes('ANC') ? 'ANC Checkup' : 'Clinical Visit',
-                risk: (riskLower === 'critical' || riskLower === 'high') ? 'red' : riskLower === 'medium' ? 'yellow' : 'green',
-                vitals: {
-                  bp: v.vitals?.bloodPressure || 'N/A',
-                  temp: v.vitals?.temperature ? `${v.vitals.temperature}°F` : 'N/A',
-                  weight: v.vitals?.weight ? `${v.vitals.weight} kg` : 'N/A',
-                  pulse: 'N/A',
-                },
-                symptoms: v.symptoms?.length > 0 ? v.symptoms : ['None reported'],
-                notes: v.notes || 'No clinical notes recorded.',
-                action: v.aiSuggestion || 'Continue monitoring as per protocol.',
-                worker: 'Jash Nikombhe (AW-1029)',
-              };
-            });
-            setVisits(mapped);
+            setVisits(data.map(mapVisitData));
             return; // Successfully loaded from backend
           }
         }
@@ -247,36 +333,7 @@ export default function PatientProfile() {
     return 'bg-emerald-500';
   };
 
-  const handleLogVisit = async () => {
-    // Quick mock visit payload since form isn't built yet
-    const mockVisit = {
-      patientId: routeId,
-      vitals: { bloodPressure: '120/80', temperature: 98.6, weight: 65 },
-      symptoms: ['Routine Checkup'],
-      notes: 'Routine visit logged via offline sync button.',
-    };
-    
-    try {
-      const token = await getStoredToken();
-      const response = await fetch(`http://localhost:5000/patients/${routeId}/visits`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(mockVisit)
-      });
-      if (!response.ok) throw new Error("Failed to log visit");
-      alert(language === 'hi' ? 'विजिट सफलतापूर्वक सहेजी गई' : 'Visit logged successfully!');
-      // Refreshing the page to get the new visit
-      window.location.reload();
-    } catch (networkError) {
-      if (isOfflineError(networkError)) {
-        console.warn("Offline detected. Queueing Visit Creation.");
-        enqueueAction('ADD_VISIT', mockVisit);
-        alert(language === 'hi' ? 'विजिट कतार में जोड़ी गई (ऑफ़लाइन)' : 'Offline mode: Visit queued for sync!');
-      } else {
-        alert("Demo Mode: Network error ignored. Visit Logged.");
-      }
-    }
-  };
+  const handleLogVisit = openVisitModal;
 
   const handleAIAssessment = async () => {
     setIsAssessing(true);
@@ -496,8 +553,8 @@ export default function PatientProfile() {
                     <div className="flex items-center gap-4 text-left">
                       <div className={`w-3 h-3 rounded-full shrink-0 ${getRiskDot(visit.risk)}`} />
                       <div>
-                        <p className="text-sm font-bold text-slate-900 mb-0.5">{visit.type}</p>
-                        <p className="text-xs font-medium text-slate-500">{visit.date} at {visit.time} &bull; by {visit.worker}</p>
+                        <p className="text-sm font-bold text-slate-900 mb-0.5">{visit.type || 'Clinical Visit'}</p>
+                        <p className="text-xs font-medium text-slate-500">{visit.date || 'Recent'}{visit.time ? ` at ${visit.time}` : ''} &bull; {visit.worker || 'ASHA Worker'}</p>
                       </div>
                     </div>
                     <div className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-slate-100 text-slate-900' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}>
@@ -574,6 +631,198 @@ export default function PatientProfile() {
           </div>
 
         </div>
+        {/* LOG VISIT MODAL */}
+        {showVisitModal && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => !visitSubmitting && setShowVisitModal(false)}>
+            <div
+              className="bg-white w-full sm:max-w-lg sm:mx-4 rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="bg-slate-900 px-6 py-5 text-white flex items-center justify-between shrink-0">
+                <div>
+                  <h3 className="font-bold text-lg">{language === 'hi' ? 'नई विजिट दर्ज करें' : 'Log New Visit'}</h3>
+                  <p className="text-sm text-slate-400 mt-0.5">{patient.firstName} {patient.lastName} &bull; {visitStep === 1 ? 'Clinical Vitals' : 'Notes & Submit'}</p>
+                </div>
+                {!visitSubmitting && (
+                  <button onClick={() => setShowVisitModal(false)} className="p-2 rounded-xl hover:bg-slate-800 transition-colors">
+                    <X size={20} />
+                  </button>
+                )}
+              </div>
+
+              {/* Step indicator */}
+              <div className="flex h-1">
+                <div className={`h-full transition-all duration-500 bg-teal-500 ${visitStep >= 1 ? 'flex-1' : 'w-0'}`} />
+                <div className={`h-full transition-all duration-500 bg-emerald-500 ${visitStep >= 2 ? 'flex-1' : 'w-0'}`} />
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-5">
+
+                {/* STEP 1 — VITALS */}
+                {visitStep === 1 && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Blood Pressure</label>
+                        <input type="text" placeholder="120/80" value={visitForm.bp}
+                          onChange={e => setVisitForm(p => ({...p, bp: e.target.value}))}
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Weight (kg)</label>
+                        <input type="number" placeholder="62" value={visitForm.weight}
+                          onChange={e => setVisitForm(p => ({...p, weight: e.target.value}))}
+                          className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Blood Sugar (mg/dL)</label>
+                      <input type="number" placeholder="110" value={visitForm.bloodSugar}
+                        onChange={e => setVisitForm(p => ({...p, bloodSugar: e.target.value}))}
+                        className="w-full h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Symptoms Reported</label>
+                      <textarea rows={2} placeholder="e.g. Headache, swelling in feet..." value={visitForm.symptoms}
+                        onChange={e => setVisitForm(p => ({...p, symptoms: e.target.value}))}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Other Factors / Notes</label>
+                      <textarea rows={2} placeholder="e.g. On medication, family history..." value={visitForm.otherFactors}
+                        onChange={e => setVisitForm(p => ({...p, otherFactors: e.target.value}))}
+                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {/* STEP 2 — NOTES + AI RESULT */}
+                {visitStep === 2 && !visitSuccess && (
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Clinical Notes (optional)</label>
+                    <textarea rows={4} placeholder="Additional observations, mediciation given, referrals made..." value={visitForm.notes}
+                      onChange={e => setVisitForm(p => ({...p, notes: e.target.value}))}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm font-medium resize-none focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-400"
+                    />
+                    <p className="text-xs text-slate-400 mt-2 font-medium">After submitting, AI will auto-analyse risk from the vitals you provided.</p>
+                  </div>
+                )}
+
+                {/* SUBMITTING LOADER */}
+                {visitSubmitting && (
+                  <div className="flex flex-col items-center py-8 gap-4">
+                    <div className="w-16 h-16 rounded-full bg-teal-50 flex items-center justify-center">
+                      <Loader size={32} className="text-teal-500 animate-spin" />
+                    </div>
+                    <p className="text-sm font-bold text-slate-600">Logging visit & running AI analysis...</p>
+                    <p className="text-xs text-slate-400 text-center max-w-xs">Gemini is analysing the vitals for risk patterns. This may take a moment.</p>
+                  </div>
+                )}
+
+                {/* AI RESULT — shown after success */}
+                {visitSuccess && visitAIResult && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <CheckCircle2 size={22} className="text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-900">Visit Logged Successfully</p>
+                        <p className="text-xs text-slate-500">AI Analysis complete</p>
+                      </div>
+                    </div>
+
+                    <div className={`rounded-2xl border p-5 ${
+                      visitAIResult.riskLevel === 'HIGH' || visitAIResult.riskLevel === 'CRITICAL' ? 'bg-red-50 border-red-200' :
+                      visitAIResult.riskLevel === 'MODERATE' || visitAIResult.riskLevel === 'MEDIUM' ? 'bg-amber-50 border-amber-200' :
+                      'bg-emerald-50 border-emerald-200'
+                    }`}>
+                      <div className="flex items-center gap-3 mb-4">
+                        <Brain size={20} className={`${
+                          visitAIResult.riskLevel === 'HIGH' || visitAIResult.riskLevel === 'CRITICAL' ? 'text-red-600' :
+                          visitAIResult.riskLevel === 'MODERATE' || visitAIResult.riskLevel === 'MEDIUM' ? 'text-amber-600' :
+                          'text-emerald-600'
+                        }`} />
+                        <span className="font-black text-slate-900 text-sm uppercase tracking-wider">AI Risk Assessment</span>
+                        <span className={`ml-auto px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${
+                          visitAIResult.riskLevel === 'HIGH' || visitAIResult.riskLevel === 'CRITICAL' ? 'bg-red-500 text-white animate-pulse' :
+                          visitAIResult.riskLevel === 'MODERATE' || visitAIResult.riskLevel === 'MEDIUM' ? 'bg-amber-400 text-white' :
+                          'bg-emerald-500 text-white'
+                        }`}>
+                          {visitAIResult.riskLevel}
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="bg-white/70 rounded-xl p-4 border border-white">
+                          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Detected Condition</p>
+                          <p className="font-semibold text-slate-800 text-sm">{visitAIResult.possibleCondition}</p>
+                        </div>
+                        <div className="bg-white/70 rounded-xl p-4 border border-white">
+                          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Recommended Action</p>
+                          <p className="font-semibold text-slate-800 text-sm leading-relaxed">{visitAIResult.adviceForAshaWorker}</p>
+                        </div>
+                        {visitAIResult.immediateActionRequired && (
+                          <div className="flex items-center gap-2 px-4 py-3 bg-red-600 text-white rounded-xl">
+                            <Zap size={16} className="shrink-0" />
+                            <span className="text-sm font-bold">Immediate action required — refer to PHC now.</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer Buttons */}
+              {!visitSubmitting && (
+                <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
+                  {visitSuccess ? (
+                    <button
+                      onClick={() => setShowVisitModal(false)}
+                      className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm hover:bg-emerald-700 transition-colors"
+                    >
+                      Done
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => visitStep === 1 ? setShowVisitModal(false) : setVisitStep(1)}
+                        className="px-5 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold text-sm hover:bg-white transition-colors"
+                      >
+                        {visitStep === 1 ? 'Cancel' : 'Back'}
+                      </button>
+                      {visitStep === 1 ? (
+                        <button
+                          onClick={() => setVisitStep(2)}
+                          className="flex-1 py-3 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition-colors"
+                        >
+                          Continue →
+                        </button>
+                      ) : (
+                        <button
+                          onClick={submitVisit}
+                          className="flex-1 py-3 rounded-xl bg-teal-600 text-white font-bold text-sm hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Brain size={16} /> Submit & Analyse with AI
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

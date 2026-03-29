@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
-  Menu, Bell, CloudOff, Plus, Languages,
+  Menu, Bell, CloudOff, Plus, Languages, ChevronRight,
   Search, LayoutDashboard, Users, Baby, RefreshCw, 
   Settings, LogOut, ShieldAlert, UploadCloud
 } from 'lucide-react';
@@ -58,6 +58,11 @@ export default function Layout() {
 
   const [queueLength, setQueueLength] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showVisitModal, setShowVisitModal] = useState(false);
+  const [visitSearch, setVisitSearch] = useState('');
+  const [visitPatients, setVisitPatients] = useState([]);
+  const [visitLoading, setVisitLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Hook to track real network status and queue items
   useEffect(() => {
@@ -86,7 +91,31 @@ export default function Layout() {
     };
   }, []);
 
+  const openVisitModal = async () => {
+    setShowVisitModal(true);
+    setVisitSearch('');
+    setVisitLoading(true);
+    try {
+      const token = await getStoredToken();
+      const res = await fetch('http://localhost:5000/patients/search', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setVisitPatients(data);
+    } catch {
+      setVisitPatients([]);
+    } finally {
+      setVisitLoading(false);
+    }
+  };
+
+  const filteredVisitPatients = visitPatients.filter(p =>
+    p.name?.toLowerCase().includes(visitSearch.toLowerCase()) ||
+    p.village?.toLowerCase().includes(visitSearch.toLowerCase())
+  );
+
   const handleManualSync = async () => {
+
     const actions = getQueue();
     if (actions.length === 0) return;
 
@@ -245,9 +274,9 @@ export default function Layout() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </Link>
 
-            <Link to="/add-patient" className="hidden sm:flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors ml-2">
+            <button onClick={openVisitModal} className="hidden sm:flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors ml-2">
               <Plus size={16} /> {text.newVisit}
-            </Link>
+            </button>
           </div>
         </header>
 
@@ -256,6 +285,81 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+
+      {/* NEW VISIT — PATIENT PICKER MODAL */}
+      {showVisitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowVisitModal(false)}>
+          <div className="bg-white w-full max-w-md mx-4 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="bg-slate-900 px-6 py-5 text-white flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-lg">New Visit</h3>
+                <p className="text-sm text-slate-400 mt-0.5">Select a patient to log a visit</p>
+              </div>
+              <button onClick={() => setShowVisitModal(false)} className="p-2 rounded-xl hover:bg-slate-800 transition-colors">
+                <Plus size={20} className="rotate-45" />
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            <div className="px-5 py-4 border-b border-slate-100">
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+                <input
+                  type="text"
+                  placeholder="Search by name or village..."
+                  value={visitSearch}
+                  onChange={e => setVisitSearch(e.target.value)}
+                  autoFocus
+                  className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-400 bg-slate-50"
+                />
+              </div>
+            </div>
+
+            {/* Patient List */}
+            <div className="overflow-y-auto max-h-80">
+              {visitLoading ? (
+                <div className="flex items-center justify-center py-12 text-slate-400">
+                  <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  Loading patients...
+                </div>
+              ) : filteredVisitPatients.length === 0 ? (
+                <div className="text-center py-10 text-slate-400 text-sm">No patients found.</div>
+              ) : (
+                filteredVisitPatients.map(p => (
+                  <button
+                    key={p._id}
+                    onClick={() => { setShowVisitModal(false); navigate(`/patient/${p._id}`); }}
+                    className="w-full flex items-center gap-4 px-5 py-4 hover:bg-emerald-50 transition-colors border-b border-slate-50 text-left group"
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                      p.currentRiskLevel === 'CRITICAL' || p.currentRiskLevel === 'HIGH' ? 'bg-red-100 text-red-700' :
+                      p.currentRiskLevel === 'MEDIUM' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {p.name?.split(' ').map(n => n[0]).join('').slice(0,2)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-slate-900 text-sm truncate">{p.name}</p>
+                      <p className="text-xs text-slate-500">Age {p.age} &bull; {p.village || 'Unassigned'}</p>
+                    </div>
+                    <ChevronRight size={16} className="text-slate-300 group-hover:text-emerald-500 transition-colors shrink-0" />
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Add new patient footer */}
+            <div className="px-5 py-4 border-t border-slate-100 bg-slate-50">
+              <button
+                onClick={() => { setShowVisitModal(false); navigate('/add-patient'); }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-700 hover:border-emerald-400 hover:text-emerald-700 transition-all shadow-sm"
+              >
+                <Plus size={16} /> Register New Patient Instead
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

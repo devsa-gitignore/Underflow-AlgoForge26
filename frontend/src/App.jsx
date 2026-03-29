@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './LandingPage';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import PatientDirectory from './PatientDirectory';
@@ -17,7 +18,8 @@ function App() {
     <LanguageProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
           
           {/* Protected Routes inside Layout */}
           <Route element={<Layout />}>

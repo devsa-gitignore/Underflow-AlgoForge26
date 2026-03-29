@@ -37,7 +37,6 @@ export default function AddPatient() {
         male: 'पुरुष',
         mobile: 'मोबाइल नंबर',
         ward: 'गांव / वार्ड',
-        wardPlaceholder: 'क्षेत्र चुनें...',
         address: 'पता विवरण',
         categoryTitle: 'मुख्य क्लिनिकल ट्रैक',
         categorySubtitle: 'उचित देखभाल समयरेखा के लिए मुख्य श्रेणी चुनें।',
@@ -50,7 +49,6 @@ export default function AddPatient() {
         general: 'सामान्य ट्रायेज',
         generalDesc: 'सामान्य लक्षण जांच और मौसमी बीमारी रिकॉर्ड।',
         notes: 'प्रारंभिक क्लिनिकल नोट्स',
-        notesPlaceholder: 'नोट्स लिखें या आवाज से दर्ज करें...',
         identification: 'रोगी पहचान',
         qrReady: 'क्यूआर कोड रोगी खोज के लिए तैयार है',
         savedDb: 'डेटाबेस में सहेजा गया',
@@ -82,7 +80,6 @@ export default function AddPatient() {
         male: 'Male',
         mobile: 'Mobile Number',
         ward: 'Village / Ward Assignment',
-        wardPlaceholder: 'Select an assigned area...',
         address: 'Specific Address Details',
         categoryTitle: 'Primary Clinical Track',
         categorySubtitle: 'Select the main pathway to generate the proper care timeline.',
@@ -95,7 +92,6 @@ export default function AddPatient() {
         general: 'General Triage',
         generalDesc: 'Standard symptomatic checks and seasonal illness logging.',
         notes: 'Initial Clinical Notes',
-        notesPlaceholder: 'Type notes or click the mic for voice dictation...',
         identification: 'Patient Identification',
         qrReady: 'QR code ready for patient lookup',
         savedDb: 'Saved to Database',
@@ -237,6 +233,12 @@ export default function AddPatient() {
     }, 1200);
   };
 
+  const fieldClassName =
+    'w-full h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/25 focus-visible:ring-offset-1 focus-visible:border-emerald-500';
+
+  const textareaClassName =
+    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/25 focus-visible:ring-offset-1 focus-visible:border-emerald-500 resize-none';
+
   const StepIndicator = () => (
     <div className="mb-8 relative">
       <div className="flex justify-between relative z-10">
@@ -244,7 +246,7 @@ export default function AddPatient() {
           <div key={num} className="flex flex-col items-center gap-2">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${
               step >= num 
-                ? 'bg-teal-600 text-white shadow-md shadow-teal-200' 
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' 
                 : 'bg-slate-100 text-slate-400 border-2 border-slate-200'
             }`}>
               {step > num ? <CheckCircle2 size={18} /> : num}
@@ -257,7 +259,7 @@ export default function AddPatient() {
       </div>
       <div className="absolute top-5 left-0 w-full h-1 bg-slate-100 -z-0 rounded-full">
         <div 
-          className="h-full bg-teal-500 transition-all duration-500 rounded-full" 
+          className="h-full bg-emerald-500 transition-all duration-500 rounded-full" 
           style={{ width: `${((step - 1) / 3) * 100}%` }}
         />
       </div>
@@ -265,7 +267,7 @@ export default function AddPatient() {
   );
 
   return (
-    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/80 via-white to-emerald-50/30">
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -292,16 +294,14 @@ export default function AddPatient() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">{text.firstName}</label>
                     <input 
                       type="text" name="firstName" value={formData.firstName} onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                      placeholder="e.g. Aarti"
+                      className={fieldClassName}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">{text.lastName}</label>
                     <input 
                       type="text" name="lastName" value={formData.lastName} onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                      placeholder="e.g. Sharma"
+                      className={fieldClassName}
                     />
                   </div>
                 </div>
@@ -311,8 +311,7 @@ export default function AddPatient() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2">{text.ageYears}</label>
                     <input 
                       type="number" name="age" value={formData.age} onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                      placeholder="e.g. 28"
+                      className={fieldClassName}
                     />
                   </div>
                   <div>
@@ -320,13 +319,13 @@ export default function AddPatient() {
                     <div className="grid grid-cols-2 gap-2">
                       <button 
                         onClick={() => setFormData(prev => ({...prev, gender: 'F'}))}
-                        className={`py-3 rounded-lg font-semibold text-sm transition-all border ${formData.gender === 'F' ? 'bg-teal-50 border-teal-500 text-teal-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        className={`py-3 rounded-lg font-semibold text-sm transition-all border ${formData.gender === 'F' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                       >
                         {text.female}
                       </button>
                       <button 
                         onClick={() => setFormData(prev => ({...prev, gender: 'M'}))}
-                        className={`py-3 rounded-lg font-semibold text-sm transition-all border ${formData.gender === 'M' ? 'bg-teal-50 border-teal-500 text-teal-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                        className={`py-3 rounded-lg font-semibold text-sm transition-all border ${formData.gender === 'M' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                       >
                         {text.male}
                       </button>
@@ -342,13 +341,12 @@ export default function AddPatient() {
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">{text.mobile}</label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-4 bg-slate-100 border border-r-0 border-slate-200 rounded-l-lg text-slate-500 font-semibold text-sm">
+                    <span className="inline-flex h-11 items-center px-4 bg-slate-50 border border-r-0 border-slate-300 rounded-l-md text-slate-500 font-semibold text-sm shadow-sm">
                       +91
                     </span>
                     <input 
                       type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-                      placeholder="98765 43210"
+                      className="w-full h-11 rounded-r-md border border-l-0 border-slate-300 bg-white px-3 text-sm text-slate-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/25 focus-visible:ring-offset-1 focus-visible:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -357,9 +355,8 @@ export default function AddPatient() {
                   <label className="block text-sm font-semibold text-slate-700 mb-2">{text.ward}</label>
                   <select 
                     name="ward" value={formData.ward} onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-700 font-medium"
+                    className={`${fieldClassName} font-medium`}
                   >
-                    <option value="">{text.wardPlaceholder}</option>
                     <option value="Ward 1">Ward 1 (North Block)</option>
                     <option value="Ward 2">Ward 2 (East Block)</option>
                     <option value="Ward 4">Ward 4 (Central Block)</option>
@@ -371,8 +368,7 @@ export default function AddPatient() {
                   <label className="block text-sm font-semibold text-slate-700 mb-2">{text.address}</label>
                   <textarea 
                     name="address" value={formData.address} onChange={handleInputChange} rows="2"
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-none"
-                    placeholder="House number, landmarks, etc."
+                    className={textareaClassName}
                   ></textarea>
                 </div>
               </div>
@@ -391,12 +387,16 @@ export default function AddPatient() {
                   {/* Visual Category Card */}
                   <button 
                     onClick={() => handleCategorySelect('maternal')}
-                    className={`p-4 rounded-2xl border flex flex-col items-center text-center transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] active:scale-[0.98] ${formData.category === 'maternal' ? 'border-teal-500 bg-teal-50/80 shadow-[0_4px_20px_rgba(20,184,166,0.15)] ring-2 ring-teal-500/20' : 'border-slate-200/60 bg-white/50 hover:border-teal-300 hover:bg-white hover:shadow-md'}`}
+                    className={`p-4 rounded-2xl border text-left transition-all duration-300 relative overflow-hidden group hover:scale-[1.02] active:scale-[0.98] ${formData.category === 'maternal' ? 'border-emerald-500 bg-emerald-50/80 shadow-[0_4px_20px_rgba(16,185,129,0.15)] ring-2 ring-emerald-500/20' : 'border-slate-200/60 bg-white/50 hover:border-emerald-300 hover:bg-white hover:shadow-md'}`}
                   >
-                    <Baby size={28} className={`mb-3 ${formData.category === 'maternal' ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-500'}`} />
-                    <h4 className={`font-bold text-lg mb-1 ${formData.category === 'maternal' ? 'text-teal-900' : 'text-slate-800'}`}>{text.maternalCare}</h4>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed">{text.maternalDesc}</p>
-                    {formData.category === 'maternal' && <CheckCircle2 className="absolute top-4 right-4 text-teal-500" size={20} />}
+                    <div className="flex flex-col items-start gap-3">
+                      <Baby size={28} className={`${formData.category === 'maternal' ? 'text-emerald-600' : 'text-slate-400 group-hover:text-emerald-500'}`} />
+                      <div className="text-left">
+                        <h4 className={`font-bold text-lg mb-1 ${formData.category === 'maternal' ? 'text-emerald-900' : 'text-slate-800'}`}>{text.maternalCare}</h4>
+                        <p className="text-xs text-slate-500 font-medium leading-relaxed">{text.maternalDesc}</p>
+                      </div>
+                    </div>
+                    {formData.category === 'maternal' && <CheckCircle2 className="absolute top-4 right-4 text-emerald-500" size={20} />}
                   </button>
 
                   <button 
@@ -462,14 +462,13 @@ export default function AddPatient() {
                       value={formData.notes} 
                       onChange={handleInputChange} 
                       rows="4"
-                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all resize-none text-slate-700 font-medium pb-12 shadow-sm"
-                      placeholder={text.notesPlaceholder}
+                      className={`${textareaClassName} pb-12 font-medium`}
                     ></textarea>
                     
                     {/* Interactive Mic Button */}
                     <button 
                       onClick={toggleListening}
-                      className={`absolute bottom-3 right-3 px-3 py-2 rounded-full flex items-center gap-2 transition-all shadow-sm ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 border border-transparent'}`}
+                      className={`absolute bottom-3 right-3 px-3 py-2 rounded-full flex items-center gap-2 transition-all shadow-sm ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 border border-transparent'}`}
                       title="Start Voice Typing"
                     >
                       {isListening ? <Mic size={16} /> : <MicOff size={16} />}
@@ -485,17 +484,17 @@ export default function AddPatient() {
                     <div className="flex flex-col items-center animate-in zoom-in-95">
                       <img src={qrCodeUrl} alt="Patient QR Code" className="w-32 h-32 rounded-lg shadow-sm border border-slate-200 mb-3" />
                       <p className="text-sm font-semibold text-slate-800">{text.qrReady}</p>
-                      <p className="text-xs font-medium text-teal-600 mt-1 flex items-center justify-center gap-1"><CheckCircle2 size={14}/> {text.savedDb}</p>
+                      <p className="text-xs font-medium text-emerald-600 mt-1 flex items-center justify-center gap-1"><CheckCircle2 size={14}/> {text.savedDb}</p>
                     </div>
                   ) : (
                     <button 
                       onClick={generateQR}
                       disabled={isGeneratingQR}
-                      className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-lg font-bold shadow-sm hover:border-teal-500 hover:text-teal-700 transition-all flex items-center gap-2 mx-auto group disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-6 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-lg font-bold shadow-sm hover:border-emerald-500 hover:text-emerald-700 transition-all flex items-center gap-2 mx-auto group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isGeneratingQR ? (
                         <>
-                          <svg className="animate-spin h-5 w-5 text-teal-500" viewBox="0 0 24 24">
+                          <svg className="animate-spin h-5 w-5 text-emerald-500" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
@@ -503,7 +502,7 @@ export default function AddPatient() {
                         </>
                       ) : (
                         <>
-                          <QrCode className="text-slate-400 group-hover:text-teal-500 transition-colors" size={20} /> 
+                          <QrCode className="text-slate-400 group-hover:text-emerald-500 transition-colors" size={20} /> 
                           {text.generateQr}
                         </>
                       )}
@@ -537,7 +536,7 @@ export default function AddPatient() {
                 <button 
                   onClick={handleSubmit}
                   disabled={!qrCodeUrl || isSubmitting}
-                  className="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-teal-500 transition-all shadow-[0_4px_20px_rgba(20,184,166,0.3)] hover:shadow-[0_8px_30px_rgba(20,184,166,0.4)] active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
+                  className="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-emerald-500 transition-all shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.4)] active:scale-[0.98] disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -558,8 +557,8 @@ export default function AddPatient() {
         ) : (
           /* SUCCESS STATE */
           <div className="p-8 flex-1 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500">
-            <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-              <CheckCircle2 size={40} className="text-teal-600" />
+            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <CheckCircle2 size={40} className="text-emerald-600" />
             </div>
             
             <h3 className="text-3xl font-black text-slate-900 mb-2">{text.successTitle}</h3>
@@ -571,7 +570,7 @@ export default function AddPatient() {
 
             {/* ID Badge Output */}
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 w-full max-w-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-2 h-full bg-teal-500" />
+              <div className="absolute top-0 left-0 w-2 h-full bg-emerald-500" />
               <div className="flex justify-between items-start mb-4 pl-2">
                 <div>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{text.registrationStatus}</p>

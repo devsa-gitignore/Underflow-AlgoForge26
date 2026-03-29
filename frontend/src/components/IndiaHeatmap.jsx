@@ -59,11 +59,11 @@ const HeatmapStyles = () => {
 // Determines shade of color based on filter and cases
 const getColor = (cases, filterType) => {
   if (filterType === 'maternal') {
-    return cases > 20 ? '#0f766e' : // Teal 700
-           cases > 15 ? '#0d9488' : // Teal 600
-           cases > 10 ? '#14b8a6' : // Teal 500
-           cases > 5  ? '#2dd4bf' : // Teal 400
-           cases > 0  ? '#5eead4' : // Teal 300
+    return cases > 20 ? '#065f46' : // Emerald 800
+           cases > 15 ? '#047857' : // Emerald 700
+           cases > 10 ? '#059669' : // Emerald 600
+           cases > 5  ? '#10b981' : // Emerald 500
+           cases > 0  ? '#34d399' : // Emerald 400
                         '#f1f5f9';  // Slate 100
   } else if (filterType === 'highRisk') {
     return cases > 30 ? '#7f1d1d' : // Red 900
@@ -148,7 +148,7 @@ export default function RegionalHeatmap() {
       <div className="absolute top-4 left-4 z-[1000] flex flex-col gap-2 bg-white/70 backdrop-blur-xl p-2 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-white/80 transition-all">
         <button 
           onClick={() => setFilterType('all')}
-          className={`px-3 py-2 rounded-lg text-xs font-bold transition-all w-28 text-left flex items-center justify-between ${filterType === 'all' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 hover:bg-white/80 active:scale-[0.98]'}`}
+          className={`px-3 py-2 rounded-lg text-xs font-bold transition-all w-28 text-left flex items-center justify-between ${filterType === 'all' ? 'bg-emerald-800 text-white shadow-md' : 'text-slate-600 hover:bg-white/80 active:scale-[0.98]'}`}
         >
           <span>All Cases</span>
           {filterType === 'all' && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>}
@@ -162,7 +162,7 @@ export default function RegionalHeatmap() {
         </button>
         <button 
           onClick={() => setFilterType('maternal')}
-          className={`px-3 py-2 rounded-lg text-xs font-bold transition-all w-28 text-left flex items-center justify-between ${filterType === 'maternal' ? 'bg-teal-600 text-white shadow-md' : 'text-slate-600 hover:bg-white/80 active:scale-[0.98]'}`}
+          className={`px-3 py-2 rounded-lg text-xs font-bold transition-all w-28 text-left flex items-center justify-between ${filterType === 'maternal' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-600 hover:bg-white/80 active:scale-[0.98]'}`}
         >
           <span>Maternal</span>
           {filterType === 'maternal' && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}

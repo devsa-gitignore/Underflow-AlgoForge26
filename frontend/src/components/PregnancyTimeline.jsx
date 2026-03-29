@@ -64,7 +64,7 @@ export default function PregnancyTimeline({ patient }) {
         <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
           <Activity size={20} className="text-emerald-500" /> AI Growth Timeline
         </h3>
-        <span className="text-sm font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+        <span className="text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
           Smart Path Active
         </span>
       </div>
@@ -98,13 +98,13 @@ export default function PregnancyTimeline({ patient }) {
               let iconComponent = null;
 
               if (month.isCurrent) {
-                pulseBorder = "bg-white border-emerald-300 shadow-[0_4px_24px_rgba(52,211,153,0.15)] ring-4 ring-emerald-500/10";
-                iconBg = "bg-emerald-500 text-white animate-pulse shadow-xl shadow-emerald-500/40";
-                iconComponent = <Activity size={16} />;
-              } else if (isLocked) {
-                pulseBorder = "border-slate-200/50 bg-slate-50/20 opacity-60 backdrop-blur-sm";
-                iconBg = "bg-slate-200 text-slate-400";
-                iconComponent = <Lock size={16} />;
+                pulseBorder = "ring-4 ring-emerald-500/20 bg-white border-emerald-500 scale-110 shadow-lg shadow-emerald-500/10";
+                iconBg = "bg-emerald-500 text-white shadow-md shadow-emerald-500/20";
+                iconComponent = <Activity size={18} />;
+              } else if (month.isCompleted) {
+                pulseBorder = "bg-white border-emerald-200 scale-100";
+                iconBg = "bg-emerald-50 text-emerald-600 border border-emerald-200";
+                iconComponent = <CheckCircle size={18} />;
               } else {
                 pulseBorder = "bg-white/40 border-slate-200/60 hover:bg-white hover:border-slate-200 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99]";
                 iconBg = "bg-blue-500 text-white shadow-lg shadow-blue-500/30";
@@ -152,6 +152,12 @@ export default function PregnancyTimeline({ patient }) {
                         >
                           <div className="mt-6 pt-5 border-t border-slate-200/50 flex flex-col gap-4">
                             <div className="bg-white/60 backdrop-blur-sm shadow-inner rounded-xl p-5 border border-white/80">
+                              <div className="flex items-center gap-2 mb-4">
+                                <div className="p-2 bg-emerald-50 rounded-xl">
+                                  <Coffee size={18} className="text-emerald-500" />
+                                </div>
+                                <h4 className="text-sm font-bold text-emerald-900">Health Guidelines</h4>
+                              </div>
                               <div className="space-y-4">
                                 <div className="flex items-start gap-3">
                                   <Info size={16} className="text-blue-500 mt-0.5 shrink-0" />

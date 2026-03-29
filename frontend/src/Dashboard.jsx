@@ -267,7 +267,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/80 via-white to-emerald-50/30">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -348,15 +348,15 @@ export default function Dashboard() {
             </div>
           </MagicBento>
 
-          <MagicBento glowColor="20, 184, 166" className="p-6 cursor-default">
+          <MagicBento glowColor="16, 185, 129" className="p-6 cursor-default bg-white/95 shadow-sm border border-emerald-100/50">
             <div className="flex justify-between items-start mb-6">
               <span className="text-sm font-semibold text-slate-600">{text.weeklyGoal}</span>
-              <div className="w-10 h-10 rounded-xl bg-teal-50/50 flex items-center justify-center shadow-sm border border-teal-100/50">
-                <CheckCircle2 size={18} className="text-teal-500" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center shadow-sm border border-emerald-100">
+                <CheckCircle2 size={18} className="text-emerald-500" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-teal-600 to-emerald-400">{weeklyCompletion}%</span>
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-emerald-600 to-green-400">{weeklyCompletion}%</span>
               <span className="text-sm font-medium text-slate-500">{text.completed}</span>
             </div>
           </MagicBento>
@@ -368,7 +368,7 @@ export default function Dashboard() {
               <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
                 {text.priorityQueue}
               </h2>
-              <button onClick={() => navigate('/directory')} className="text-sm font-medium text-teal-600 hover:text-teal-700">
+              <button onClick={() => navigate('/directory')} className="text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
                 {text.seeAll}
               </button>
             </div>
@@ -383,18 +383,18 @@ export default function Dashboard() {
                   <div
                     key={patient.id}
                     onClick={() => navigate(`/patient/${patient.id}`)}
-                    className={`p-4 rounded-xl transition-all cursor-pointer ${getCardStyles(patient.risk)}`}
+                    className={`p-3 rounded-xl transition-all cursor-pointer relative group ${getCardStyles(patient.risk)}`}
                   >
                     {patient.risk === 'red' && (
-                      <div className="absolute top-0 right-0 w-8 h-8 bg-red-50 flex items-center justify-center rounded-bl-xl">
+                      <div className="absolute top-0 right-0 w-8 h-8 bg-red-50/80 flex items-center justify-center rounded-bl-xl rounded-tr-xl">
                         <AlertCircle size={14} className="text-red-500" />
                       </div>
                     )}
 
-                    <div className="flex justify-between items-start">
-                      <div className="flex gap-4">
+                    <div className="flex justify-between items-center pr-6">
+                      <div className="flex items-center gap-4">
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm hidden sm:flex shrink-0 ${
+                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm hidden sm:flex shrink-0 border border-white/50 shadow-inner ${
                             patient.risk === 'red'
                               ? 'bg-red-100 text-red-700'
                               : patient.risk === 'yellow'
@@ -408,27 +408,27 @@ export default function Dashboard() {
                             .join('')}
                         </div>
 
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-slate-900 text-sm">
+                        <div className="flex flex-col justify-center">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                            <h3 className="font-bold text-slate-900 text-sm">
                               {translatePersonName(patient.name, language)}
                             </h3>
-                            <span className={`px-2 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wider ${getBadgeStyles(patient.risk)}`}>
+                            <div className="h-4 w-px bg-slate-300 hidden sm:block ml-1 mr-1"></div>
+                            <span className="text-[13px] text-slate-700 font-semibold mr-1">
+                              {translateIssue(patient.issue)}
+                            </span>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider ${getBadgeStyles(patient.risk)}`}>
                               {patient.risk === 'red' ? text.urgent : patient.risk === 'yellow' ? text.monitor : text.routine}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-500 mb-2">
-                            {text.ageLabel} {patient.age} • {translateWardLabel(patient.village, language)} • {translateTime(patient.risk)}
+                          <p className="text-xs text-slate-500 font-medium">
+                            {text.ageLabel} {patient.age} &bull; {translateWardLabel(patient.village, language)} &bull; {translateTime(patient.risk)}
                           </p>
-
-                          <div className="text-sm text-slate-700 flex items-center gap-2">
-                            {translateIssue(patient.issue)}
-                          </div>
                         </div>
                       </div>
 
-                      <div className="hidden sm:flex self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <ChevronRight size={18} className="text-slate-400" />
+                      <div className="hidden sm:flex opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ChevronRight size={18} className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" />
                       </div>
                     </div>
                   </div>

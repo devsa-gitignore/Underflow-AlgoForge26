@@ -291,7 +291,7 @@ export default function PatientProfile() {
   };
 
   return (
-    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/80 via-white to-emerald-50/30">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -388,20 +388,20 @@ export default function PatientProfile() {
 
         {/* AI ASSESSMENT RESULT PANEL */}
         {assessmentResult && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 relative animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 relative animate-in fade-in slide-in-from-top-4 duration-500 shadow-sm">
             <button 
               onClick={() => setAssessmentResult(null)}
-              className="absolute top-4 right-4 text-blue-400 hover:text-blue-700 transition-colors"
+              className="absolute top-4 right-4 text-emerald-400 hover:text-emerald-700 transition-colors"
             >
               <X size={20} />
             </button>
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0 shadow-inner">
-                <Brain className="text-blue-600" size={24} />
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center shrink-0 shadow-inner">
+                <Brain className="text-emerald-600" size={24} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-blue-900">
+                  <h3 className="text-lg font-bold text-emerald-900">
                     {language === 'hi' ? 'एआई स्वास्थ्य विश्लेषण' : 'AI Health Analysis'}
                   </h3>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${

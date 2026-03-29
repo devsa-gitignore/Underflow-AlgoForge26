@@ -12,7 +12,10 @@ export default function Layout() {
   const location = useLocation();
   const { language, toggleLanguage } = useLanguage();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/directory' && location.pathname.startsWith('/patient')) return true;
+    return location.pathname === path;
+  };
   const text = language === 'hi'
     ? {
         workspace: 'कार्यस्थान',
@@ -53,8 +56,8 @@ export default function Layout() {
     <div className="h-screen bg-slate-50/50 flex font-inter text-slate-900 overflow-hidden w-full">
       {/* SIDEBAR NAVIGATION (Desktop) */}
       <aside className="w-64 bg-slate-900 flex flex-col hidden md:flex shrink-0 z-20">
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <div className="w-8 h-8 bg-teal-500 rounded-md flex items-center justify-center mr-3">
+        <Link to="/dashboard" className="h-16 flex items-center px-6 border-b border-slate-800 hover:bg-slate-800/50 transition-colors cursor-pointer">
+          <div className="w-8 h-8 bg-emerald-500 rounded-md flex items-center justify-center mr-3">
             <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-5A1.5 1.5 0 0112.5 10h1a1.5 1.5 0 011.5 1.5v5a1.5 1.5 0 01-1.5 1.5h-1a1.5 1.5 0 01-1.5-1.5zm1-8.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
             </svg>
@@ -62,18 +65,18 @@ export default function Layout() {
           <h1 className="text-xl font-semibold tracking-tight text-white">
             Swasthya<span className="font-normal text-slate-400">Sathi</span>
           </h1>
-        </div>
+        </Link>
 
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           <p className="px-3 text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">{text.workspace}</p>
           
-          <Link to="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/dashboard') ? 'bg-teal-900/40 text-teal-400' : 'text-slate-400 hover:text-white'}`}>
+          <Link to="/dashboard" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/dashboard') ? 'bg-emerald-900/40 text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
             <LayoutDashboard size={18} /> {text.dashboard}
           </Link>
-          <Link to="/directory" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/directory') ? 'bg-teal-900/40 text-teal-400' : 'text-slate-400 hover:text-white'}`}>
+          <Link to="/directory" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/directory') ? 'bg-emerald-900/40 text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
             <Users size={18} /> {text.directory}
           </Link>
-          <Link to="/add-patient" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/add-patient') ? 'bg-teal-900/40 text-teal-400' : 'text-slate-400 hover:text-white'}`}>
+          <Link to="/add-patient" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/add-patient') ? 'bg-emerald-900/40 text-emerald-400' : 'text-slate-400 hover:text-white'}`}>
             <Plus size={18} /> {text.addPatient}
           </Link>
           <Link to="/alerts" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/alerts') ? 'bg-red-900/40 text-red-400' : 'text-slate-400 hover:text-white'}`}>
@@ -89,14 +92,14 @@ export default function Layout() {
             <div className="flex items-center gap-3">
               <RefreshCw size={18} /> {text.offlineMode}
             </div>
-            <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-400' : 'bg-teal-400'}`} />
+            <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-400' : 'bg-emerald-400'}`} />
           </button>
 
         </nav>
 
         <div className="p-4 border-t border-slate-800">
           <Link to="/" className="flex items-center gap-3 p-2 hover:bg-slate-800/50 rounded-lg cursor-pointer transition-colors text-white">
-            <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-xs font-semibold">
+            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center text-xs font-semibold">
               JN
             </div>
             <div className="flex-1 overflow-hidden">
@@ -135,7 +138,7 @@ export default function Layout() {
             </button>
             <div className="hidden lg:flex items-center gap-2 cursor-pointer" onClick={() => setIsOffline(!isOffline)}>
               <span className="text-xs font-medium text-slate-500">{isOffline ? text.offlineStatus : text.syncedStatus}</span>
-              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-teal-500'}`} />
+              <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-red-500' : 'bg-emerald-500'}`} />
             </div>
             
             <div className="h-6 w-px bg-slate-200 hidden lg:block mx-1"></div>
@@ -145,7 +148,7 @@ export default function Layout() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </button>
 
-            <Link to="/add-patient" className="hidden sm:flex items-center gap-1.5 bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors ml-2">
+            <Link to="/add-patient" className="hidden sm:flex items-center gap-1.5 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors ml-2">
               <Plus size={16} /> {text.newVisit}
             </Link>
           </div>

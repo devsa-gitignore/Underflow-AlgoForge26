@@ -36,7 +36,7 @@ export default function TimelinePage() {
   }, [id]);
 
   return (
-    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/80 via-white to-emerald-50/30">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Navigation Bar */}

@@ -193,7 +193,7 @@ export default function PatientDirectory() {
   });
 
   return (
-    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-50/60 via-slate-50 to-white">
+    <div className="p-6 lg:p-10 font-inter min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/80 via-white to-emerald-50/30">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -218,11 +218,11 @@ export default function PatientDirectory() {
               placeholder={text.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 shadow-[0_2px_10px_rgba(0,0,0,0.01)] transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-white/50 backdrop-blur-md border border-slate-200/60 rounded-xl text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 shadow-[0_2px_10px_rgba(0,0,0,0.01)] transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <div className="flex items-center gap-2 pr-4 border-r border-slate-200/50">
               <Filter size={16} className="text-slate-400" />
               <span className="text-xs font-semibold text-slate-500 uppercase">{text.filters}</span>
@@ -269,7 +269,7 @@ export default function PatientDirectory() {
           <div className="divide-y divide-slate-100/50 p-2">
             {isLoading ? (
               <div className="p-12 text-center">
-                <RefreshCw size={24} className="text-teal-500 animate-spin mx-auto mb-2" />
+                <RefreshCw size={24} className="text-emerald-500 animate-spin mx-auto mb-2" />
                 <p className="text-sm font-semibold text-slate-500">{text.loading}</p>
               </div>
             ) : filteredPatients.length === 0 ? (
@@ -285,7 +285,7 @@ export default function PatientDirectory() {
                   className="grid grid-cols-12 gap-4 p-4 items-center bg-transparent hover:bg-white hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer rounded-2xl mx-1 my-1 border border-transparent hover:border-slate-100"
                 >
                   <div className="col-span-4 flex items-center gap-3 pl-2">
-                    <div className="w-11 h-11 rounded-xl bg-slate-100/80 flex items-center justify-center font-bold text-slate-600 text-sm shadow-sm border border-slate-200/50 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
+                    <div className="w-11 h-11 rounded-xl bg-slate-100/80 flex items-center justify-center font-bold text-slate-600 text-sm shadow-sm border border-slate-200/50 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                       {translatePersonName(patient.name, language)
                         .split(' ')
                         .map((n) => n[0])
@@ -323,7 +323,7 @@ export default function PatientDirectory() {
                   </div>
 
                   <div className="col-span-1 flex justify-end pr-2">
-                    <button className="p-2 text-slate-400 group-hover:text-teal-600 group-hover:bg-teal-50 group-hover:scale-110 rounded-xl transition-all opacity-0 group-hover:opacity-100">
+                    <button className="p-2 text-slate-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 group-hover:scale-110 rounded-xl transition-all opacity-0 group-hover:opacity-100">
                       <ChevronRight size={20} />
                     </button>
                     <button className="p-2 text-slate-400 hover:text-slate-700 rounded-xl transition-colors sm:hidden">

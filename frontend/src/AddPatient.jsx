@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from './language-context';
 import { getStoredToken } from './auth-utils';
-
+import { enqueueAction, isOfflineError } from './sync-utils';
 export default function AddPatient() {
   const navigate = useNavigate();
   const { language: appLanguage } = useLanguage();
@@ -156,33 +156,44 @@ export default function AddPatient() {
       };
 
       // Create Patient
-      const createResponse = await fetch('http://localhost:5000/patients', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(patientPayload)
-      });
+      let patientId;
+      try {
+        const createResponse = await fetch('http://localhost:5000/patients', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(patientPayload)
+        });
 
-      if (!createResponse.ok) throw new Error("Failed to create patient record");
-      
-      const patient = await createResponse.json();
-      const patientId = patient._id;
+        if (!createResponse.ok) throw new Error("Failed to create patient record");
+        
+        const patient = await createResponse.json();
+        patientId = patient._id;
 
-      // 2. Now generate the QR code via backend
-      const qrResponse = await fetch(`http://localhost:5000/patients/${patientId}/qr`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
+        // 2. Now generate the QR code via backend
+        const qrResponse = await fetch(`http://localhost:5000/patients/${patientId}/qr`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!qrResponse.ok) throw new Error("Failed to generate QR code");
+
+        const qrData = await qrResponse.json();
+        setQrCodeUrl(qrData.qrCode); // Backend returns dataURL/Base64
+      } catch (networkError) {
+        if (isOfflineError(networkError)) {
+          console.warn("Offline detected. Queueing Patient Creation.");
+          patientId = enqueueAction('CREATE_PATIENT', patientPayload);
+          // Fallback UI QR for offline mode
+          setQrCodeUrl(`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${patientId}`);
+        } else {
+          throw networkError; // Re-throw if it wasn't a network issue
         }
-      });
-
-      if (!qrResponse.ok) throw new Error("Failed to generate QR code");
-
-      const qrData = await qrResponse.json();
-      
-      setQrCodeUrl(qrData.qrCode); // Backend returns dataURL/Base64
+      }
       
     } catch (error) {
       console.error("Error generating/saving QR:", error);

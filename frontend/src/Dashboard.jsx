@@ -343,7 +343,7 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {alerts.filter(a => a.status === 'ACTIVE' && a.type === 'MISSED_FOLLOWUP' && !hiddenCards.includes(a._id)).map(alert => (
+        {alerts.filter(a => a.status === 'ACTIVE' && a.type === 'MISSED_FOLLOWUP' && !hiddenCards.includes(a._id)).slice(0, 2).map(alert => (
           <div key={alert._id} className="bg-red-50 border-l-4 border-l-red-600 rounded-xl p-4 flex items-start sm:items-center justify-between gap-4 shadow-[0_4px_24px_rgba(239,68,68,0.15)] mb-4">
             <div className="flex items-start gap-3">
               <AlertCircle size={20} className="text-red-600 mt-0.5 shrink-0 animate-pulse" />

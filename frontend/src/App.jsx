@@ -11,33 +11,36 @@ import AlertsPage from './AlertsPage';
 import AdminDashboard from './AdminDashboard';
 import Layout from './Layout';
 import { LanguageProvider } from './LanguageProvider';
+import { OfflineSyncProvider } from './OfflineSyncContext';
 import './App.css';
 
 function App() {
   return (
     <LanguageProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          
-          {/* Protected Routes inside Layout */}
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/directory" element={<PatientDirectory />} />
-            <Route path="/add-patient" element={<AddPatient />} />
-            <Route path="/patient/:id" element={<PatientProfile />} />
-            <Route path="/patient/:id/pregacare" element={<TimelinePage />} />
-            <Route path="/alerts" element={<AlertsPage />} />
-          </Route>
-          
-          {/* Standalone Route for Admin */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          
-          {/* Redirect unknown routes */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+      <OfflineSyncProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            
+            {/* Protected Routes inside Layout */}
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/directory" element={<PatientDirectory />} />
+              <Route path="/add-patient" element={<AddPatient />} />
+              <Route path="/patient/:id" element={<PatientProfile />} />
+              <Route path="/patient/:id/pregacare" element={<TimelinePage />} />
+              <Route path="/alerts" element={<AlertsPage />} />
+            </Route>
+            
+            {/* Standalone Route for Admin */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            
+            {/* Redirect unknown routes */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </OfflineSyncProvider>
     </LanguageProvider>
   );
 }

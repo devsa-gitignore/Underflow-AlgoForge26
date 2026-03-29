@@ -295,11 +295,12 @@ export default function PatientProfile() {
       await Promise.all([fetchVisits(), fetchPatient()]);
     } catch (error) {
       console.error("[Visit] Submit failed:", error);
-      if (isOfflineError(error)) {
-        enqueueAction('ADD_VISIT', { patientId: routeId, ...visitForm });
+      if (isOfflineError(error) || !navigator.onLine) {
+        console.warn("🌐 Network drop detected mid-flight. Queueing payload for sync.");
+        enqueueAction('ADD_VISIT', visitPayload); // Correctly use the shaped payload, not the raw form
         setVisitSuccess(true);
       } else {
-        alert("Submission failed. Please check your connection or server status.");
+        alert(`Submission failed: ${error.message}`);
       }
     } finally {
       setVisitSubmitting(false);
